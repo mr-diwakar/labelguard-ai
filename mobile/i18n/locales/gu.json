@@ -1,0 +1,156 @@
+{
+  "common": {
+    "appName": "LabelGuard AI",
+    "tagline": "સ્કેન કરો. ચકાસો. સમજો.",
+    "back": "પાછળ",
+    "backToHome": "હોમ પર પરત",
+    "viewAll": "બધું જુઓ",
+    "aiAssisted": "AI-સહાયિત",
+    "sampleData": "આ સ્ક્રીન પરનો તપાસ ડેટા ફક્ત ઇન્ટરફેસ પૂર્વાવલોકન માટેનો નમૂનો છે."
+  },
+  "nav": {
+    "home": "હોમ",
+    "scan": "સ્કેન",
+    "history": "ઇતિહાસ",
+    "profile": "પ્રોફાઇલ"
+  },
+  "greeting": {
+    "morning": "સુપ્રભાત",
+    "afternoon": "નમસ્તે",
+    "evening": "શુભ સાંજ"
+  },
+  "time": {
+    "today": "આજે",
+    "yesterday": "ગઈકાલે",
+    "daysAgo": "{{count}} દિવસ પહેલાં",
+    "weeksAgo": "{{count}} અઠવાડિયાં પહેલાં",
+    "oneWeekAgo": "1 અઠવાડિયા પહેલાં"
+  },
+  "home": {
+    "scanTitle": "ઉત્પાદન સ્કેન કરો",
+    "scanDescription": "ફરજિયાત લીગલ મેટ્રોલોજી ઘોષણાઓની AI-સહાયિત તપાસ સાથે લેબલ અનુપાલન ચકાસો.",
+    "scanCta": "હવે સ્કેન કરો",
+    "quickScan": "ઉત્પાદન સ્કેન કરો",
+    "uploadImage": "છબી અપલોડ કરો",
+    "inspectionHistory": "તપાસ ઇતિહાસ",
+    "statisticsTitle": "આંકડા",
+    "statisticsSubtitle": "ઇન્ટરફેસ પૂર્વાવલોકન માટે નમૂના મૂલ્યો.",
+    "statInspections": "તપાસ",
+    "statPassed": "ઉત્તીર્ણ",
+    "statReview": "સમીક્ષા",
+    "statIssue": "સંભવિત સમસ્યા",
+    "recentTitle": "તાજેતરની તપાસ",
+    "emptyRecentTitle": "હજી કોઈ તપાસ નથી",
+    "emptyRecentDescription": "અહીં સૂચિ જોવા માટે ઉત્પાદન લેબલ સ્કેન કરો.",
+    "intelligenceTitle": "ઉત્પાદન માહિતી",
+    "nutrition": "પોષણ",
+    "ingredients": "ઘટકો",
+    "labelInformation": "લેબલ માહિતી"
+  },
+  "compliance": {
+    "title": "લીગલ મેટ્રોલોજી",
+    "description": "ફરજિયાત ઘોષણાઓ ચકાસો અને સંભવિત બિન-અનુપાલન ઓળખો.",
+    "footnote": "સ્વયંસંચાલિત મૂલ્યાંકન. કોઈપણ અમલવારી પગલાં પહેલાં મેન્યુઅલ ચકાસણીની સલાહ છે."
+  },
+  "declaration": {
+    "declarations": "ઘોષણાઓ",
+    "mrp": "મહત્તમ છૂટક કિંમત",
+    "netQuantity": "ચોખ્ખું વજન",
+    "manufacturer": "ઉત્પાદક",
+    "countryOfOrigin": "મૂળ દેશ",
+    "manufacturerAddress": "ઉત્પાદકનું સરનામું",
+    "manualReview": "મેન્યુઅલ સમીક્ષા"
+  },
+  "status": {
+    "compliantLabel": "અનુપાલિત",
+    "compliantBadge": "અનુપાલિત",
+    "potentialLabel": "સંભવિત બિન-અનુપાલન",
+    "potentialBadge": "સંભવિત બિન-અનુપાલન",
+    "reviewLabel": "મેન્યુઅલ સમીક્ષા",
+    "reviewBadge": "મેન્યુઅલ સમીક્ષા",
+    "helperAutomated": "સ્વયંસંચાલિત મૂલ્યાંકન",
+    "helperManual": "મેન્યુઅલ ચકાસણીની સલાહ"
+  },
+  "scan": {
+    "title": "ઉત્પાદન સ્કેન કરો",
+    "subtitle": "ઉત્પાદન લેબલ ફ્રેમની અંદર રાખો.",
+    "placeholderTitle": "કેમેરા પ્લેસહોલ્ડર",
+    "placeholderHint": "લાઇવ લેબલ પૂર્વાવલોકન અહીં દેખાશે.",
+    "checklistTitle": "ખાતરી કરો કે લેબલ:",
+    "clearlyVisible": "સ્પષ્ટ દેખાય છે",
+    "wellLit": "પૂરતા પ્રકાશમાં",
+    "notBlurry": "ધૂંધળું નથી",
+    "insideFrame": "સંપૂર્ણ ફ્રેમની અંદર",
+    "capture": "નમૂના તપાસ ચલાવો",
+    "footnote": "આ પૂર્વાવલોકન બિલ્ડમાં કેમેરા સક્રિય નથી. કેપ્ચર નમૂના ડેટા વડે અનુરૂપ તપાસ ચલાવે છે."
+  },
+  "processing": {
+    "title": "લેબલ વિશ્લેષણ",
+    "subtitle": "નમૂના ડેટા વડે અનુરૂપ તપાસ પ્રક્રિયા.",
+    "imageQuality": "છબી ગુણવત્તા",
+    "ocr": "લખાણ ઓળખ",
+    "extraction": "ઘોષણા નિષ્કર્ષણ",
+    "validation": "નિયમ ચકાસણી",
+    "evidence": "પુરાવા નિર્માણ",
+    "pending": "પ્રતીક્ષામાં",
+    "active": "ચાલુ છે",
+    "done": "પૂર્ણ",
+    "completeTitle": "મૂલ્યાંકન તૈયાર",
+    "completeDescription": "સ્વયંસંચાલિત મૂલ્યાંકન પૂર્ણ. મેન્યુઅલ ચકાસણીની સલાહ છે.",
+    "viewEvidence": "પુરાવા જુઓ",
+    "cancel": "રદ કરો"
+  },
+  "evidence": {
+    "title": "પુરાવા પૂર્વાવલોકન",
+    "subtitle": "નમૂના પુરાવા સાથે સ્વયંસંચાલિત મૂલ્યાંકન.",
+    "imagePlaceholder": "લેબલ છબી પ્લેસહોલ્ડર",
+    "boundingBox": "ઓળખાયેલ વિસ્તાર",
+    "confidence": "વિશ્વાસ સ્તર",
+    "ruleReference": "નિયમ સંદર્ભ",
+    "manualMessage": "આ સ્વયંસંચાલિત મૂલ્યાંકન છે. કોઈપણ અમલવારી પગલાં પહેલાં મેન્યુઅલ ચકાસણીની સલાહ છે.",
+    "passedTitle": "મળેલી ઘોષણાઓ",
+    "violationsTitle": "સંભવિત બિન-અનુપાલન",
+    "reviewTitle": "મેન્યુઅલ સમીક્ષા જરૂરી",
+    "emptyPassed": "કોઈ ઘોષણા નોંધાઈ નથી.",
+    "emptyViolations": "કોઈ સંભવિત સમસ્યા નોંધાઈ નથી.",
+    "emptyReview": "સમીક્ષા માટે કંઈ ચિહ્નિત નથી."
+  },
+  "history": {
+    "title": "તપાસ ઇતિહાસ",
+    "subtitle": "ઇન્ટરફેસ પૂર્વાવલોકન માટે નમૂના રેકોર્ડ.",
+    "searchPlaceholder": "ઉત્પાદનનું નામ શોધો",
+    "clearSearch": "શોધ સાફ કરો",
+    "filterAll": "બધું",
+    "filterCompliant": "અનુપાલિત",
+    "filterReview": "સમીક્ષા",
+    "filterIssue": "સંભવિત સમસ્યા",
+    "emptyTitle": "કોઈ મેળ ખાતી તપાસ નથી",
+    "emptyDescription": "અલગ ઉત્પાદન નામ અથવા સ્થિતિ ફિલ્ટર પ્રયાસ કરો."
+  },
+  "profile": {
+    "title": "પ્રોફાઇલ",
+    "userName": "વપરાશકર્તા",
+    "userRole": "નિરીક્ષક / ગ્રાહક",
+    "preferences": "પસંદગીઓ",
+    "settings": "સેટિંગ્સ",
+    "language": "ભાષા",
+    "languageDescription": "એપમાં વપરાતી ભાષા પસંદ કરો.",
+    "notifications": "સૂચનાઓ",
+    "notificationsDescription": "તપાસ રિમાઇન્ડર અને રિપોર્ટ ચેતવણીઓ અહીં ગોઠવાશે.",
+    "about": "LabelGuard AI વિશે",
+    "aboutDescription": "LabelGuard AI પેકેજ્ડ ઉત્પાદનોના લેબલ વાંચીને અને સંભવિત બિન-અનુપાલન મેન્યુઅલ ચકાસણી માટે દર્શાવીને લીગલ મેટ્રોલોજી તપાસમાં મદદ કરે છે.",
+    "footnote": "આ પૂર્વાવલોકન બિલ્ડમાં સાઇન-ઇન નથી, તેથી કોઈ ખાતાની વિગતો સંગ્રહાતી નથી."
+  },
+  "language": {
+    "title": "ભાષા",
+    "subtitle": "ઇન્ટરફેસ તરત બદલાય છે અને તમારી પસંદગી આ ડિવાઇસ પર સાચવાય છે.",
+    "selected": "પસંદ કરેલ"
+  },
+  "comingSoon": {
+    "uploadImage": "ગેલેરીમાંથી લેબલ ફોટો પસંદ કરવાની સુવિધા આગામી આવૃત્તિમાં આવશે.",
+    "inspectionDetail": "ઘોષણા-સ્તરીય પુરાવા સાથે વિગતવાર તપાસ રિપોર્ટ અહીં ખૂલશે.",
+    "nutrition": "સ્કેન કરેલા લેબલની પોષણ વિગત.",
+    "ingredients": "ઘટકોની સૂચિ અને એડિટિવ માહિતી.",
+    "labelInformation": "પેકેજ પર છપાયેલ અન્ય વિગતો."
+  }
+}

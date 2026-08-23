@@ -1,0 +1,156 @@
+{
+  "common": {
+    "appName": "LabelGuard AI",
+    "tagline": "स्कॅन करा. पडताळा. समजून घ्या.",
+    "back": "मागे",
+    "backToHome": "होमवर परत",
+    "viewAll": "सर्व पहा",
+    "aiAssisted": "एआय-सहाय्यित",
+    "sampleData": "या स्क्रीनवरील तपासणी डेटा केवळ इंटरफेस पूर्वावलोकनासाठी नमुना आहे."
+  },
+  "nav": {
+    "home": "होम",
+    "scan": "स्कॅन",
+    "history": "इतिहास",
+    "profile": "प्रोफाइल"
+  },
+  "greeting": {
+    "morning": "सुप्रभात",
+    "afternoon": "नमस्कार",
+    "evening": "शुभ संध्याकाळ"
+  },
+  "time": {
+    "today": "आज",
+    "yesterday": "काल",
+    "daysAgo": "{{count}} दिवसांपूर्वी",
+    "weeksAgo": "{{count}} आठवड्यांपूर्वी",
+    "oneWeekAgo": "1 आठवड्यापूर्वी"
+  },
+  "home": {
+    "scanTitle": "उत्पादन स्कॅन करा",
+    "scanDescription": "अनिवार्य लीगल मेट्रोलॉजी घोषणांच्या एआय-सहाय्यित तपासणीसह लेबल अनुपालन तपासा.",
+    "scanCta": "आता स्कॅन करा",
+    "quickScan": "उत्पादन स्कॅन करा",
+    "uploadImage": "प्रतिमा अपलोड करा",
+    "inspectionHistory": "तपासणी इतिहास",
+    "statisticsTitle": "आकडेवारी",
+    "statisticsSubtitle": "इंटरफेस पूर्वावलोकनासाठी नमुना मूल्ये.",
+    "statInspections": "तपासण्या",
+    "statPassed": "उत्तीर्ण",
+    "statReview": "पुनरावलोकन",
+    "statIssue": "संभाव्य समस्या",
+    "recentTitle": "अलीकडील तपासण्या",
+    "emptyRecentTitle": "अद्याप तपासणी नाही",
+    "emptyRecentDescription": "येथे यादी पाहण्यासाठी उत्पादन लेबल स्कॅन करा.",
+    "intelligenceTitle": "उत्पादन माहिती",
+    "nutrition": "पोषण",
+    "ingredients": "घटक",
+    "labelInformation": "लेबल माहिती"
+  },
+  "compliance": {
+    "title": "लीगल मेट्रोलॉजी",
+    "description": "अनिवार्य घोषणा तपासा आणि संभाव्य गैर-अनुपालन ओळखा.",
+    "footnote": "स्वयंचलित मूल्यांकन. कोणतीही कारवाई करण्यापूर्वी मॅन्युअल पडताळणी करण्याची शिफारस."
+  },
+  "declaration": {
+    "declarations": "घोषणा",
+    "mrp": "कमाल किरकोळ किंमत",
+    "netQuantity": "निव्वळ प्रमाण",
+    "manufacturer": "उत्पादक",
+    "countryOfOrigin": "मूळ देश",
+    "manufacturerAddress": "उत्पादकाचा पत्ता",
+    "manualReview": "मॅन्युअल पुनरावलोकन"
+  },
+  "status": {
+    "compliantLabel": "अनुपालनात",
+    "compliantBadge": "अनुपालनात",
+    "potentialLabel": "संभाव्य गैर-अनुपालन",
+    "potentialBadge": "संभाव्य गैर-अनुपालन",
+    "reviewLabel": "मॅन्युअल पुनरावलोकन",
+    "reviewBadge": "मॅन्युअल पुनरावलोकन",
+    "helperAutomated": "स्वयंचलित मूल्यांकन",
+    "helperManual": "मॅन्युअल पडताळणीची शिफारस"
+  },
+  "scan": {
+    "title": "उत्पादन स्कॅन करा",
+    "subtitle": "उत्पादन लेबल फ्रेममध्ये ठेवा.",
+    "placeholderTitle": "कॅमेरा प्लेसहोल्डर",
+    "placeholderHint": "थेट लेबल पूर्वावलोकन येथे दिसेल.",
+    "checklistTitle": "लेबलबद्दल खात्री करा:",
+    "clearlyVisible": "स्पष्ट दिसते",
+    "wellLit": "पुरेसा प्रकाश",
+    "notBlurry": "अस्पष्ट नाही",
+    "insideFrame": "पूर्णपणे फ्रेममध्ये",
+    "capture": "नमुना तपासणी चालवा",
+    "footnote": "या पूर्वावलोकन बिल्डमध्ये कॅमेरा सक्रिय नाही. कॅप्चर नमुना डेटासह अनुरूपित तपासणी चालवते."
+  },
+  "processing": {
+    "title": "लेबलचे विश्लेषण",
+    "subtitle": "नमुना डेटासह अनुरूपित तपासणी प्रक्रिया.",
+    "imageQuality": "प्रतिमा गुणवत्ता",
+    "ocr": "मजकूर ओळख",
+    "extraction": "घोषणा काढणे",
+    "validation": "नियम पडताळणी",
+    "evidence": "पुरावा निर्मिती",
+    "pending": "प्रतीक्षेत",
+    "active": "सुरू आहे",
+    "done": "पूर्ण",
+    "completeTitle": "मूल्यांकन तयार",
+    "completeDescription": "स्वयंचलित मूल्यांकन पूर्ण. मॅन्युअल पडताळणीची शिफारस.",
+    "viewEvidence": "पुरावा पहा",
+    "cancel": "रद्द करा"
+  },
+  "evidence": {
+    "title": "पुरावा पूर्वावलोकन",
+    "subtitle": "नमुना पुराव्यासह स्वयंचलित मूल्यांकन.",
+    "imagePlaceholder": "लेबल प्रतिमा प्लेसहोल्डर",
+    "boundingBox": "ओळखलेले क्षेत्र",
+    "confidence": "विश्वास पातळी",
+    "ruleReference": "नियम संदर्भ",
+    "manualMessage": "हे स्वयंचलित मूल्यांकन आहे. कोणतीही कारवाई करण्यापूर्वी मॅन्युअल पडताळणीची शिफारस केली जाते.",
+    "passedTitle": "आढळलेल्या घोषणा",
+    "violationsTitle": "संभाव्य गैर-अनुपालन",
+    "reviewTitle": "मॅन्युअल पुनरावलोकन आवश्यक",
+    "emptyPassed": "कोणतीही घोषणा नोंदवली नाही.",
+    "emptyViolations": "कोणतीही संभाव्य समस्या नोंदवली नाही.",
+    "emptyReview": "पुनरावलोकनासाठी काही चिन्हांकित नाही."
+  },
+  "history": {
+    "title": "तपासणी इतिहास",
+    "subtitle": "इंटरफेस पूर्वावलोकनासाठी नमुना नोंदी.",
+    "searchPlaceholder": "उत्पादनाचे नाव शोधा",
+    "clearSearch": "शोध साफ करा",
+    "filterAll": "सर्व",
+    "filterCompliant": "अनुपालनात",
+    "filterReview": "पुनरावलोकन",
+    "filterIssue": "संभाव्य समस्या",
+    "emptyTitle": "जुळणारी तपासणी नाही",
+    "emptyDescription": "वेगळे उत्पादन नाव किंवा स्थिती फिल्टर वापरून पहा."
+  },
+  "profile": {
+    "title": "प्रोफाइल",
+    "userName": "वापरकर्ता",
+    "userRole": "निरीक्षक / ग्राहक",
+    "preferences": "प्राधान्ये",
+    "settings": "सेटिंग्ज",
+    "language": "भाषा",
+    "languageDescription": "अ‍ॅपमध्ये वापरली जाणारी भाषा निवडा.",
+    "notifications": "सूचना",
+    "notificationsDescription": "तपासणी स्मरणपत्रे आणि अहवाल सूचना येथे कॉन्फिगर होतील.",
+    "about": "LabelGuard AI विषयी",
+    "aboutDescription": "LabelGuard AI पॅकबंद उत्पादनांची लेबले वाचून आणि संभाव्य गैर-अनुपालन मॅन्युअल पडताळणीसाठी दर्शवून लीगल मेट्रोलॉजी तपासणीत मदत करते.",
+    "footnote": "या पूर्वावलोकन बिल्डमध्ये साइन-इन नाही, म्हणून खाते तपशील साठवले जात नाहीत."
+  },
+  "language": {
+    "title": "भाषा",
+    "subtitle": "इंटरफेस लगेच बदलतो आणि तुमची निवड या डिव्हाइसवर सेव्ह होते.",
+    "selected": "निवडलेले"
+  },
+  "comingSoon": {
+    "uploadImage": "गॅलरीमधून लेबल फोटो निवडण्याची सुविधा पुढील आवृत्तीत उपलब्ध होईल.",
+    "inspectionDetail": "घोषणा-स्तरीय पुराव्यासह सविस्तर तपासणी अहवाल येथे उघडेल.",
+    "nutrition": "स्कॅन केलेल्या लेबलचे पोषण तपशील.",
+    "ingredients": "घटक यादी आणि अ‍ॅडिटिव्ह माहिती.",
+    "labelInformation": "पॅकेजवर छापलेले इतर तपशील."
+  }
+}

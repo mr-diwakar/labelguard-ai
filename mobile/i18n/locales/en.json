@@ -1,0 +1,156 @@
+{
+  "common": {
+    "appName": "LabelGuard AI",
+    "tagline": "Scan. Verify. Understand.",
+    "back": "Back",
+    "backToHome": "Back to Home",
+    "viewAll": "View all",
+    "aiAssisted": "AI-ASSISTED",
+    "sampleData": "Inspection data on this screen is sample content for interface preview only."
+  },
+  "nav": {
+    "home": "Home",
+    "scan": "Scan",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "weeksAgo": "{{count}} weeks ago",
+    "oneWeekAgo": "1 week ago"
+  },
+  "home": {
+    "scanTitle": "Scan Product",
+    "scanDescription": "Check label compliance with AI-assisted inspection of mandatory Legal Metrology declarations.",
+    "scanCta": "Scan Now",
+    "quickScan": "Scan Product",
+    "uploadImage": "Upload Image",
+    "inspectionHistory": "Inspection History",
+    "statisticsTitle": "Statistics",
+    "statisticsSubtitle": "Sample values shown for interface preview.",
+    "statInspections": "Inspections",
+    "statPassed": "Passed",
+    "statReview": "Review",
+    "statIssue": "Potential Issue",
+    "recentTitle": "Recent Inspections",
+    "emptyRecentTitle": "No inspections yet",
+    "emptyRecentDescription": "Scan a product label to see it listed here.",
+    "intelligenceTitle": "Product Intelligence",
+    "nutrition": "Nutrition",
+    "ingredients": "Ingredients",
+    "labelInformation": "Label Information"
+  },
+  "compliance": {
+    "title": "Legal Metrology",
+    "description": "Check mandatory declarations and identify potential non-compliance.",
+    "footnote": "Automated assessment. Manual verification recommended before any enforcement action."
+  },
+  "declaration": {
+    "declarations": "Declarations",
+    "mrp": "MRP",
+    "netQuantity": "Net Quantity",
+    "manufacturer": "Manufacturer",
+    "countryOfOrigin": "Country of Origin",
+    "manufacturerAddress": "Manufacturer address",
+    "manualReview": "Manual Review"
+  },
+  "status": {
+    "compliantLabel": "Compliant",
+    "compliantBadge": "COMPLIANT",
+    "potentialLabel": "Potential Non-Compliance",
+    "potentialBadge": "POTENTIAL NON-COMPLIANCE",
+    "reviewLabel": "Manual Review",
+    "reviewBadge": "MANUAL REVIEW",
+    "helperAutomated": "Automated assessment",
+    "helperManual": "Manual verification recommended"
+  },
+  "scan": {
+    "title": "Scan Product",
+    "subtitle": "Position the product label inside the frame.",
+    "placeholderTitle": "Camera Placeholder",
+    "placeholderHint": "The live label preview will appear here.",
+    "checklistTitle": "Make sure the label is:",
+    "clearlyVisible": "Clearly visible",
+    "wellLit": "Well lit",
+    "notBlurry": "Not blurry",
+    "insideFrame": "Fully inside the frame",
+    "capture": "Run Sample Inspection",
+    "footnote": "The camera is not enabled in this preview build. Capture runs a simulated inspection using sample data."
+  },
+  "processing": {
+    "title": "Analysing Label",
+    "subtitle": "Simulated inspection pipeline using sample data.",
+    "imageQuality": "Image Quality",
+    "ocr": "Text Recognition",
+    "extraction": "Declaration Extraction",
+    "validation": "Rule Validation",
+    "evidence": "Evidence Generation",
+    "pending": "Waiting",
+    "active": "In progress",
+    "done": "Complete",
+    "completeTitle": "Assessment ready",
+    "completeDescription": "Automated assessment complete. Manual verification recommended.",
+    "viewEvidence": "View Evidence",
+    "cancel": "Cancel"
+  },
+  "evidence": {
+    "title": "Evidence Preview",
+    "subtitle": "Automated assessment with sample evidence.",
+    "imagePlaceholder": "Label image placeholder",
+    "boundingBox": "Detected region",
+    "confidence": "Confidence",
+    "ruleReference": "Rule reference",
+    "manualMessage": "This is an automated assessment. Manual verification is recommended before any enforcement action.",
+    "passedTitle": "Declarations found",
+    "violationsTitle": "Potential non-compliance",
+    "reviewTitle": "Needs manual review",
+    "emptyPassed": "No declarations recorded.",
+    "emptyViolations": "No potential issues recorded.",
+    "emptyReview": "Nothing flagged for review."
+  },
+  "history": {
+    "title": "Inspection History",
+    "subtitle": "Sample records for interface preview.",
+    "searchPlaceholder": "Search product name",
+    "clearSearch": "Clear search",
+    "filterAll": "All",
+    "filterCompliant": "Compliant",
+    "filterReview": "Review",
+    "filterIssue": "Potential Issue",
+    "emptyTitle": "No matching inspections",
+    "emptyDescription": "Try a different product name or status filter."
+  },
+  "profile": {
+    "title": "Profile",
+    "userName": "User",
+    "userRole": "Inspector / Consumer",
+    "preferences": "Preferences",
+    "settings": "Settings",
+    "language": "Language",
+    "languageDescription": "Choose the language used across the app.",
+    "notifications": "Notifications",
+    "notificationsDescription": "Inspection reminders and report alerts will be configured here.",
+    "about": "About LabelGuard AI",
+    "aboutDescription": "LabelGuard AI assists Legal Metrology inspection by reading packaged-product labels and highlighting potential non-compliance for manual verification.",
+    "footnote": "Sign-in is not part of this preview build, so no account details are stored."
+  },
+  "language": {
+    "title": "Language",
+    "subtitle": "The interface updates immediately and your choice is saved on this device.",
+    "selected": "Selected"
+  },
+  "comingSoon": {
+    "uploadImage": "Choosing a label photo from the gallery will be available in a later iteration.",
+    "inspectionDetail": "A detailed inspection report with declaration-level evidence will open here.",
+    "nutrition": "Nutritional breakdown of the scanned label.",
+    "ingredients": "Ingredient list and additive insights.",
+    "labelInformation": "Other details printed on the package."
+  }
+}
