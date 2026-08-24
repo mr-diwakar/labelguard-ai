@@ -1047,3 +1047,198 @@ change, no DB change, no public `/scan` API. Full reference: `docs/scan-ocr.md`.
 models, migrations, and the `declarations` `CHECK` constraint are untouched. No new tables,
 no migrations, no new production API endpoints. Declaration extraction (Phase 15), Legal
 Metrology integration (Phase 16), and verification (Phase 17) are **not started**.
+
+---
+
+# 37. Phase 13 status — Multi-product nutrition comparison `[IMPLEMENTED]`
+
+Phase 13 (merged via PR #1, commit `b973907`) adds a **self-contained** capability to
+**rank multiple already-scanned products** by their nutrition. It is not part of a single
+`ScanResult`: a single scan carries `nutrition: NutritionFacts | None` (missing = `None`,
+never zero), while comparison operates over several such panels. Package
+`backend/app/nutrition/comparison/`, its own endpoint `POST /nutrition/compare`. Full
+reference: `docs/nutrition-comparison.md`.
+
+**Not changed:** the Legal Metrology engine, validators, resolver, rules, DB, and the
+`declarations` `CHECK` constraint. The later scan pipeline (Phases 15–19) reaches this
+feature only through an adapter boundary and never rebuilds the comparator.
+
+---
+
+# 38. Phase 15 status — Declaration extraction `[IMPLEMENTED]`
+
+Phase 15 built the pipeline segment **between OCR and the engine**:
+`OCRResult[] → normalise → per-field extractors → ExtractionResult → ExtractedDeclaration[]`.
+It decides *what a region says*, never *what it means legally* — deterministic only, no
+LLM, no external lookup, no verdict. Full reference: `docs/declaration-extraction.md`.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New package `backend/app/extraction/`: `normalization.py` (NFKC, Devanagari digits,
+  explainable OCR-confusion detection, unit/month canonicalisation — pure helpers),
+  `extractors.py` (one deterministic extractor per field: keyword anchoring, regex,
+  unit/date normalisation, spatial proximity, OCR confidence), `service.py`
+  (`DeclarationExtractor` / `extract_declarations`).
+- New contracts `backend/app/schemas/extraction.py`: `DeclarationCandidate` /
+  `FieldExtraction` / `ExtractionResult`, which **preserve every candidate** and adapt
+  DOWN to the Phase 11 `ExtractedDeclaration` (mirroring `RawTextRegion → OCRResult`).
+- Tests: `tests/extraction/` (**38 tests**). Suite now **330 passed, 2 skipped**
+  (was 292 + 2). No regressions.
+
+**Key design decisions:**
+
+- **Three confidences kept separate:** OCR confidence, extraction confidence, legal
+  assessment. `extraction_confidence = clamp(ocr_confidence × pattern_weight)`;
+  `DETECTED_CONFIDENCE_THRESHOLD = 0.6` mirrors the engine's `UNCERTAIN_CONFIDENCE_MAX`
+  (asserted by a test) without importing the compliance package.
+- **`"MRP ₹5O"` → `UNCERTAIN`** with **both** the as-read `"5O"` and corrected `"50"`
+  candidates preserved (`raw_text` kept); a number is never silently rewritten. Two-digit
+  years are `UNCERTAIN` (`ambiguous_year`) for the same reason.
+- Emits **only `DETECTED` / `UNCERTAIN`**; a field with no candidate is **omitted**, never
+  a fabricated absence — "not detected in this scan" ≠ "absent from the product".
+- Canonical net-quantity units are a subset chosen so a `DETECTED` value is always
+  re-parseable by the engine's `parse_quantity` (asserted by a test); an unrecognised unit
+  is kept low-confidence for manual review, not dropped.
+
+**Not changed:** `ComplianceEngine`, validators, resolver, DB models, migrations, the
+`declarations` `CHECK` constraint. No new tables, no API endpoint.
+
+---
+
+# 39. Phase 16 status — Legal Metrology integration `[IMPLEMENTED]`
+
+Phase 16 bridges Phase 15 extraction to the existing engine via an **adapter**, not a
+second engine: `ExtractionResult → Declaration[] → ComplianceEngine.evaluate →
+ComplianceAssessment` (the engine's own output, returned unchanged). Full reference:
+`docs/scan-pipeline.md` §2.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New module `backend/app/pipeline/legal.py`: `assess_extraction`,
+  `declarations_for_engine` (reuse the existing `ExtractedDeclaration.to_declaration`
+  mapping; `NOT_APPLICABLE` dropped — applicability is the resolver's job).
+- Tests: `tests/pipeline/test_pipeline_legal.py` (**8 tests**). Suite now **338 passed,
+  2 skipped**. No regressions.
+
+**Key design decisions:**
+
+- **One verdict system.** No legal rule re-implemented, no parallel verdict vocabulary.
+- **`label_readable` is the single lever** for "not detected ≠ omission": defaulted to
+  `None` (unknown) and **never inferred from per-field OCR confidence**. The engine's
+  `presence_outcome` flags a missing required field as `POTENTIAL_NON_COMPLIANCE` only when
+  `label_readable is True`, else `MANUAL_REVIEW` — so a single OCR miss is never mistaken
+  for an omission, yet a genuine omission still surfaces when the label is known-legible.
+- Preserves: OCR failure ≠ absent; low confidence ≠ non-compliance; not-detected ≠
+  omission; potential non-compliance / manual review are never "fraud".
+
+**Not changed:** the engine, validators, resolver, rules, DB, migrations, the `CHECK`
+constraint. No new tables, no API endpoint.
+
+---
+
+# 40. Phase 17 status — Label-to-product verification `[IMPLEMENTED]`
+
+Phase 17 compares a value **declared on the label** against a value **observed in the
+SAME captured image**. The current image is the **only** evidence source — no external
+database, marketplace, or web lookup. Full reference: `docs/scan-pipeline.md` §3.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New module `backend/app/pipeline/verification.py`: `verify`, `verify_one`,
+  `measured_value_from_text`, over the existing `VerificationInput`/`VerificationResult`
+  contract and the existing `VerificationOutcome` vocabulary.
+- Tests: `tests/pipeline/test_pipeline_verification.py` (**11 tests**). Suite now
+  **349 passed, 2 skipped**. No regressions.
+
+**Key design decisions:**
+
+- **Never FRAUD/CRIMINAL.** A difference is `POTENTIAL_MISMATCH` ("to verify, not a
+  determination of wrongdoing"); mapping is MATCH / POTENTIAL_MISMATCH / MANUAL_REVIEW
+  (units not comparable) / COULD_NOT_VERIFY (no observation or image too weak).
+- **Image degradation must not manufacture a mismatch.** Blur/rotation/scale/lighting/
+  compression/distance arrive as low `observation_confidence`; below
+  `OBSERVATION_CONFIDENCE_MIN = 0.6` the result is `COULD_NOT_VERIFY`. No numeric tolerance
+  is invented (float-hygiene only); cross-dimension units → `MANUAL_REVIEW`.
+- **Physical-quantity limitation:** a camera cannot measure real mass/volume; for
+  `net_quantity` the check is declared-printed vs visible-printed only, and every such
+  result appends a caveat pointing to a calibrated measurement.
+
+**Not changed:** the engine, validators, resolver, rules, DB, migrations, the `CHECK`
+constraint. No external calls anywhere. No new tables, no API endpoint.
+
+---
+
+# 41. Phase 18 status — Evidence & consumer guidance `[IMPLEMENTED]`
+
+Phase 18 assembles a consumer-facing `ConsumerGuidance` narrative from an existing
+`ComplianceAssessment` (+ optional Phase 17 verification). It is a **presentation layer**:
+it re-reads verdicts, echoes `assessment.status`, and invents no verdict or severity. Full
+reference: `docs/scan-pipeline.md` §4.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New module `backend/app/pipeline/guidance.py`: `build_guidance`.
+- New contract `backend/app/schemas/contracts/guidance.py`: `ConsumerGuidance`,
+  `GuidanceItem` (`{issue, finding_kind, severity, source_reference, detail,
+  recommended_evidence, next_steps, limitations}`) — reusing the existing
+  `EvidenceReference`.
+- Additive enums in `core/enums.py`: `Severity`, `FindingKind`.
+- Tests: `tests/pipeline/test_pipeline_guidance.py` (**10 tests**). Suite now **359 passed,
+  2 skipped**. No regressions.
+
+**Key design decisions:**
+
+- The five mandated sections — **WHAT WE FOUND / WHY IT MATTERS / WHAT IS UNCERTAIN / WHAT
+  EVIDENCE TO KEEP / WHAT YOU CAN DO NEXT** — are always populated, including the all-clear
+  case. Violations → `POTENTIAL_NON_COMPLIANCE` items; manual review and every
+  verification caveat → `MANUAL_REVIEW` items with notes carried verbatim into
+  `limitations`; `MATCH`/`NOT_APPLICABLE` produce no item.
+- **LabelGuard claims no action.** The disclaimer states it has not contacted any seller or
+  authority and has filed no complaint; `next_steps` are consumer-owned suggestions. There
+  is **no government-submission code**. A test forbids `fraud/counterfeit/illegal/…` and any
+  "we filed / reported to the authority" phrasing.
+
+**Not changed:** the engine, validators, resolver, rules, DB, migrations, the `CHECK`
+constraint. All new fields additive with defaults.
+
+---
+
+# 42. Phase 19 status — Unified scan result & orchestration `[IMPLEMENTED]`
+
+Phase 19 orchestrates the earlier phases into the existing `ScanResult` contract via
+`run_scan`, a **coordinator** (not a new engine). Full reference: `docs/scan-pipeline.md`
+§5.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New module `backend/app/pipeline/orchestrator.py`: `run_scan` — five isolated stages
+  (extraction → legal → verification → guidance → nutrition), each `try/except` so a
+  failure/missing input is recorded, never fatal.
+- Additive on `schemas/contracts/scan.py`: `ScanStageStatus` + `ScanResult.guidance` and
+  `ScanResult.stages` (both default empty → every earlier construction still valid).
+- Additive enum `StageOutcome` (`COMPLETED`/`SKIPPED`/`FAILED`) in `core/enums.py`.
+- Tests: `tests/pipeline/test_pipeline_orchestrator.py` (**8 tests**). Suite now
+  **367 passed, 2 skipped**. No regressions.
+
+**Key design decisions:**
+
+- **Partial results, never a crash.** A `ScanResult` always returns; coverage and errors
+  are surfaced in `stages` (a `ScanStageStatus` each) and `warnings`.
+- **Failure is never an implied pass.** A skipped/failed legal stage leaves
+  `legal_assessment = None`, never `COMPLIANT`.
+- **Legal is independent of nutrition** (missing = `None`, never zero); a single scan
+  carries its `NutritionFacts` through unchanged — the Phase 13 comparator is **not**
+  rebuilt here.
+- **Endpoint decision (deliberate):** `POST /api/v1/scan` was **not** added. `run_scan`
+  needs a live `ComplianceEngine` (DB/seed rules, not JSON-serializable) and OCR from
+  images; a real endpoint requires the full image→OCR→rule-loading→engine wiring, beyond
+  this milestone, and would ship a half-wired placeholder. The orchestration **function**
+  is the delivered substance; the spec permits adding an endpoint "only if the architecture
+  requires it, with no duplicate endpoints." Recorded here as an explicit decision.
+
+**Not changed:** the engine, validators, resolver, rules, DB, migrations, the `CHECK`
+constraint, and the Phase 13 comparator. No new tables, no migrations, no new production
+API endpoint.
+
+**Phase sequence complete through Phase 19. Per the project's gating rule, no further
+feature phases are begun without explicit authorisation.**

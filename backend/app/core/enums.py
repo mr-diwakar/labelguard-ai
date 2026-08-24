@@ -248,3 +248,20 @@ class OCRStatus(StrEnum):
     NO_TEXT_DETECTED = "NO_TEXT_DETECTED"
     PROCESSING_ERROR = "PROCESSING_ERROR"
     INVALID_IMAGE = "INVALID_IMAGE"
+
+
+# ---------------------------------------------------------------------------
+# Phase 19 scan-orchestration vocabulary.
+#
+# Records what each stage of one unified scan did. This is operational status,
+# NOT a compliance verdict: a FAILED or SKIPPED stage is a gap in coverage the
+# result must surface honestly, never an implied COMPLIANT and never a violation.
+# ---------------------------------------------------------------------------
+
+
+class StageOutcome(StrEnum):
+    """How one orchestration stage finished."""
+
+    COMPLETED = "COMPLETED"  # the stage ran and produced its output
+    SKIPPED = "SKIPPED"  # the stage did not run (a needed input was absent)
+    FAILED = "FAILED"  # the stage errored; the scan continues with partial results

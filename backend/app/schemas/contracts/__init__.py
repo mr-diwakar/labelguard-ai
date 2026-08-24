@@ -22,9 +22,10 @@ from app.schemas.contracts.detection import (
     detection_to_declaration_status,
 )
 from app.schemas.contracts.evidence import EvidenceReference
+from app.schemas.contracts.guidance import ConsumerGuidance, GuidanceItem
 from app.schemas.contracts.nutrition import NutritionFacts, NutritionValue
 from app.schemas.contracts.product import ProductProfile
-from app.schemas.contracts.scan import ScanResult
+from app.schemas.contracts.scan import ScanResult, ScanStageStatus
 from app.schemas.contracts.verification import (
     MeasuredValue,
     VerificationInput,
@@ -33,14 +34,17 @@ from app.schemas.contracts.verification import (
 
 __all__ = [
     "CONFIRMED_ABSENT_CONFIDENCE",
+    "ConsumerGuidance",
     "EvidenceReference",
     "ExtractedDeclaration",
+    "GuidanceItem",
     "InspectionContext",
     "MeasuredValue",
     "NutritionFacts",
     "NutritionValue",
     "ProductProfile",
     "ScanResult",
+    "ScanStageStatus",
     "VerificationInput",
     "VerificationResult",
     "detection_to_declaration_status",
