@@ -1,203 +1,408 @@
-# LabelGuard AI — Master Project Context
+# LabelGuard AI — Master Project Context / Handoff Document
 
 **Tagline:** Scan. Verify. Understand.
 
-This file is the single technical context for LabelGuard AI. A future developer or AI assistant should read this file, then inspect the repository, before changing code.
+This is the **MASTER PROJECT CONTEXT** for LabelGuard AI.
 
-**Authoritative source of truth:** the files in this workspace. If this document disagrees with the code, trust the code. This file was written from a local repository inspection. Planned features are not claimed as implemented.
-
----
-
-## 1. What the project is
-
-LabelGuard AI is an **AI-assisted Legal Metrology compliance and product-label intelligence platform** for packaged commodities in India.
-
-It is a decision-support / inspection system. It is **not** a legal authority, a court, or a certificate of compliance.
-
-Type (SIH wording):
-
-> AI-Powered Legal Metrology Compliance & Product Label Intelligence Platform
-
-It must **not** be described primarily as a nutrition scanner, food scanner, chatbot, or generic product scanner.
+Give this file to future AI coding assistants, teammates, developers, and integration agents. A future reader should understand the project **without previous chat history**.
 
 ---
 
-## 2. Why it exists
+## How to use this document
 
-Packaged commodities sold in India must carry certain declarations under the Legal Metrology (Packaged Commodities) Rules, 2011 (identity, net quantity, MRP, dates where applicable, consumer-care contact, and others). Checking those declarations by hand is slow and easy to get wrong.
+1. Read this file first.
+2. Inspect the **actual master repository**.
+3. Trust the code if this file and the code disagree.
+4. Never treat planned work as implemented.
+5. Never treat teammate work as integrated unless it is present in this master repository.
 
-LabelGuard’s purpose is to:
+**Status labels used throughout (do not mix them):**
 
-1. Help an inspector or consumer **capture a label**.
-2. **Extract** structured declarations (eventually via OCR).
-3. Run a **deterministic Legal Metrology rule engine** on that structured data.
-4. Produce an **automated assessment** with evidence references and a recommendation for manual verification when needed.
+| Label | Meaning |
+| --- | --- |
+| `[IMPLEMENTED]` | Present and working in this master repository |
+| `[PARTIALLY IMPLEMENTED]` | Schema, mock UI, or partial code exists; the feature is not complete |
+| `[TEAMMATE WORK — NOT INTEGRATED]` | Contract, README mention, or external teammate work exists; **not** in master as a live module |
+| `[PLANNED]` | Agreed next/near work. Not in source |
+| `[FUTURE]` | Later ideas. Not next work. Not implemented |
 
 ---
 
-## 3. SIH problem statement
+# 1. Project identity
 
 | Item | Value |
 | --- | --- |
-| Hackathon | Smart India Hackathon 2026 |
-| Problem statement | **26034** |
-| Problem | Software system to check compliance of packaged commodities under the Legal Metrology (Packaged Commodities) Rules, 2011 by scanning products, images and labels |
+| Name | **LabelGuard AI** |
+| Tagline | Scan. Verify. Understand. |
+| Hackathon | Smart India Hackathon **2026** |
+| Problem statement ID | **26034** |
+| Problem | Software system to check compliance of Packaged Commodities under Legal Metrology (Packaged Commodities) Rules, 2011 by scanning products, images and labels |
 | Organization | Ministry of Consumer Affairs, Food & Public Distribution |
 | Department | Department of Consumer Affairs |
-| Domain | Legal Metrology / packaged commodities |
+| Primary domains | Legal Metrology; consumer protection; product label intelligence; computer vision; OCR; nutrition intelligence |
 
-Official Legal Metrology landing page:
+Official legal sources (do not invent requirements from unofficial sites):
 
-https://consumeraffairs.gov.in/pages/legal-metrology-act
+- https://consumeraffairs.gov.in/pages/legal-metrology-act
+- DoCA consolidated publication of the Legal Metrology (Packaged Commodities) Rules, 2011 with amendments
+- India Code text of the 2011 Rules (G.S.R. 202(E), 7 March 2011) — used for the verified prototype seed
 
-Official consolidated publication of the 2011 Rules with amendments (DoCA):
-
-https://consumeraffairs.gov.in/public/upload/admin/cmsfiles/whatsnews/Book_on_Legal_Metrology_Packaged_Commodities_Rules%2C2011_with_all_amendments_whatsnews.pdf
-
-Do **not** invent legal requirements from blogs or unofficial sites.
+LabelGuard is a **decision-support and information platform**. It is **not** a legal authority, a court, a government complaints portal, a certificate of compliance, a calorie tracker, a food scanner, or an AI chatbot.
 
 ---
 
-## 4. Primary USP
+# 2. Current product direction
 
-**Primary USP:** AI-assisted Legal Metrology compliance inspection for Indian packaged commodities.
+The product direction has evolved.
 
-**Secondary value:** nutrition and ingredient intelligence (not the core demo; engines not implemented).
+LabelGuard AI is primarily a:
 
-```text
-                    LABELGUARD AI
-                          |
-             +------------+------------+
-             |                         |
-        PRIMARY USP              SECONDARY VALUE
-             |                         |
-    LEGAL METROLOGY          NUTRITION + INGREDIENT
-      COMPLIANCE                 INTELLIGENCE
-             |
-       +-----+-----+
-       |     |     |
-      OCR   RULE   EVIDENCE
-            ENGINE
-             |
-          REPORTS
-```
+**CONSUMER-FIRST AI-ASSISTED PRODUCT LABEL INTELLIGENCE AND LEGAL METROLOGY VERIFICATION PLATFORM.**
 
-OCR, evidence highlighting, and PDF reports **support** the legal engine. They are not the USP by themselves.
+**Consumers are the PRIMARY audience.**
 
----
+Do **not** position the current application primarily as an inspector-only application. Professional/enforcement functionality may remain possible in the architecture (same legal engine, same rules). It is **not** the primary current user experience.
 
-## 5. Target users
+The product should help consumers:
 
-From `UserRole` in `backend/app/core/enums.py`:
+- scan products
+- understand labels
+- identify required declarations
+- check applicable Legal Metrology requirements
+- verify label claims against **current** observable evidence
+- identify potential discrepancies
+- understand nutrition
+- compare multiple products
+- preserve evidence
+- generate useful reports
+- make informed decisions
 
-- `INSPECTOR` (default on the `users` table)
-- `CONSUMER`
-- `ADMIN`
+**Leftovers in master that do not match this identity (do not treat as product intent):**
 
-Authentication, login screens, and role enforcement are **not implemented**. The mobile UI is a consumer/inspector demo shell with mock inspections.
+- FastAPI description in `backend/app/main.py`: “AI-assisted Legal Metrology compliance inspection platform.”
+- `users.role` default: `INSPECTOR`
+- Mobile Home still shows mock inspection stats and “recent inspections”
 
 ---
 
-## 6. Complete architecture (intended vs actual)
+# 3. Core USP
 
-### Intended product pipeline
+The primary USP is **not** generic food scanning, calorie tracking, an AI chatbot, or generic OCR.
 
-```text
-Product image
-  → image quality / preprocessing
-  → OCR
-  → structured declarations
-  → product classification
-  → applicable rule resolution (date + category)
-  → deterministic validators
-  → compliance assessment
-  → evidence
-  → storage + PDF report
-```
+The primary USP is:
 
-Secondary (planned): nutrition extraction; ingredient extraction.
+**AI-ASSISTED LEGAL METROLOGY + LABEL-TO-PRODUCT VERIFICATION.**
 
-### Actual architecture in this repository
+Nutrition and ingredient intelligence are **secondary but important**.
+
+Intended product loop:
 
 ```text
-MOBILE (Expo / React Native, mock data)
-        ✗ not wired to API yet
-
-FASTAPI (local)
-  GET /health, GET /api/v1/health only
-        │
-        ├── PostgreSQL schema + Alembic (tables exist; API does not CRUD yet)
-        │
-        └── LEGAL METROLOGY CORE (in-process, testable without OCR/DB)
-              Rule JSON → repository/loader
-              → version + applicability
-              → validators
-              → ComplianceEngine
-              → ComplianceAssessment
+SCAN → READ → EXTRACT → VALIDATE → VERIFY → EXPLAIN → EVIDENCE → REPORT
 ```
 
-There is **no** `app/ai/`, **no** OpenCV, **no** PaddleOCR, **no** scan orchestrator, **no** PDF generator, and **no** live mobile↔API client in source.
+Legal Metrology remains the primary **compliance** USP. Label-to-product verification is the **next major product feature**. An LLM must **never** be the final legal authority.
 
-Conceptual target (not all boxes exist as code):
+```text
+OCR / AI
+  ↓
+Structured information
+  ↓
+Deterministic rule engine
+  ↓
+Compliance assessment
+```
+
+---
+
+# 4. Two phase numbering systems (do not confuse them)
+
+This repository uses **backend foundation phase numbers** in `backend/README.md` and test docstrings. The product owner has also defined a **product capability** phase list and a **new Phase 11+** roadmap.
+
+A future AI **must** keep these distinct.
+
+## 4.1 Backend foundation phases (what master actually completed)
+
+These are the numbered phases **in this master repository**. Current backend README: **“Phase 10 — Testing and hardening.”**
+
+| Backend phase | What it is | Master status |
+| --- | --- | --- |
+| 1 | FastAPI app + `/health` | `[IMPLEMENTED]` |
+| 2 | Error envelope + request logging | `[IMPLEMENTED]` |
+| 3 | Lazy PostgreSQL engine / session | `[IMPLEMENTED]` |
+| 4 | SQLAlchemy models + Alembic tables | `[IMPLEMENTED]` |
+| 5 | Pydantic contracts (`app/schemas/`) | `[IMPLEMENTED]` |
+| 6 | Legal rule storage + seed from JSON | `[IMPLEMENTED]` |
+| 7 | Rule versioning + applicability | `[IMPLEMENTED]` |
+| 8 | Deterministic validators + registry | `[IMPLEMENTED]` |
+| 9 | `ComplianceEngine` → `ComplianceAssessment` | `[IMPLEMENTED]` |
+| 10 | Hardening, overlap detection, pipeline tests | `[IMPLEMENTED]` |
+
+This is the **completed foundation**. It is **not** a complete consumer product. There is still no camera, OCR engine, scan API, verification engine, or nutrition engine.
+
+## 4.2 Product capability phases (owner list — verified against master)
+
+The owner’s expected product list is below. **Each row is verified against this master repository. Do not blindly mark COMPLETED.**
+
+| Product phase | Name | Master status | What actually exists |
+| --- | --- | --- | --- |
+| 1 | Environment / project foundation | `[IMPLEMENTED]` | `backend/`, `mobile/`, `legal-rules/`, `docs/`, git, venv pattern, Expo 54 |
+| 2 | FastAPI backend foundation | `[IMPLEMENTED]` | Health routes, logging, error envelope. **Not** a full product API |
+| 3 | PostgreSQL / database | `[IMPLEMENTED]` (schema only) | 11 tables, Alembic head `0003_legal_rule_traceability`. No CRUD API |
+| 4 | Legal Metrology rule engine | `[IMPLEMENTED]` (in-process) | `app/compliance/`. **Not** exposed as HTTP |
+| 5 | Image processing | `[PLANNED]` | No OpenCV. Not in `requirements.txt` |
+| 6 | OCR | `[PLANNED]` + `[TEAMMATE WORK — NOT INTEGRATED]` | `OCRResult` contract only. No PaddleOCR. Not installed |
+| 7 | Declaration extraction | `[PLANNED]` | `Declaration` schema + `declarations` table. No extractor |
+| 8 | OCR → extraction → compliance integration | `[PLANNED]` | Engine exists; **no** scan orchestrator, no OCR wiring. `ScanResponse` is unused schema |
+| 9 | Evidence | `[PARTIALLY IMPLEMENTED]` + `[TEAMMATE WORK — NOT INTEGRATED]` | Table + schema + validator bbox + mock Evidence screen. No image generator, no EvidenceService |
+| 10 | Nutrition | `[PLANNED]` + `[TEAMMATE WORK — NOT INTEGRATED]` | `NutritionResult` contract + `nutrition_data` table + Coming Soon tile. No nutrition engine |
+
+**Phase 11 and later are `[PLANNED]` / `[FUTURE]` unless master proves otherwise. Master does not prove otherwise.**
+
+---
+
+# 5. What is in the master repository today
+
+Root layout:
+
+```text
+labelguard/
+├── backend/          FastAPI, schemas, DB, compliance engine, tests
+├── mobile/           Expo 54 mock consumer UI
+├── legal-rules/      Prototype 2011 rules JSON
+├── docs/             This file + legal-engine docs
+└── README.md
+```
+
+There is **no** `backend/app/verification/` package. There is **no** `app/ai/`, OpenCV, PaddleOCR, ReportLab, or Ollama. There is **no** teammate OCR/nutrition/CV implementation in this tree.
+
+Live HTTP: **only** `GET /health` and `GET /api/v1/health`.
+
+---
+
+# 6. Implementation status (feature map)
+
+| Feature | Status |
+| --- | --- |
+| FastAPI process | `[IMPLEMENTED]` |
+| `GET /health`, `GET /api/v1/health` | `[IMPLEMENTED]` — `{"status":"ok"}` |
+| Error envelope `{error:{code,message,details}}` | `[IMPLEMENTED]` |
+| Request logging + secret redaction | `[IMPLEMENTED]` |
+| Config via `.env` | `[IMPLEMENTED]` |
+| PostgreSQL schema (11 tables) | `[IMPLEMENTED]` |
+| Alembic `0001`–`0003` | `[IMPLEMENTED]` |
+| Legal rules JSON + DB seed | `[IMPLEMENTED]` |
+| Rule versioning + applicability | `[IMPLEMENTED]` |
+| Deterministic validators + `ComplianceEngine` | `[IMPLEMENTED]` |
+| Expo mock UI + 7 UI locales | `[IMPLEMENTED]` |
+| Pydantic teammate contracts (OCR, nutrition, evidence, scan) | `[IMPLEMENTED]` (contracts only) |
+| Evidence table + mock Evidence screen | `[PARTIALLY IMPLEMENTED]` |
+| Inspection history table + mock History screen | `[PARTIALLY IMPLEMENTED]` |
+| Camera / `expo-camera` | `[PLANNED]` |
+| OpenCV image pipeline | `[PLANNED]` |
+| PaddleOCR | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
+| Declaration extraction from images | `[PLANNED]` |
+| Scan HTTP API | `[PLANNED]` |
+| Label-to-product verification engine | `[PLANNED]` — **next major phase** |
+| Nutrition engine | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
+| Multi-product nutrition comparison | `[PLANNED]` |
+| Ingredient intelligence engine | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
+| Evidence image generation / PDF | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
+| Auth / passwords | `[PLANNED]` — not present |
+| Historical current-vs-old-product comparison | **Not the product direction** — do not build as the core feature |
+| Barcode, QR, offline, e-commerce, local LLM | `[FUTURE]` |
+
+---
+
+# 7. Label-to-product verification
+
+**Status: `[PLANNED]` — next major feature (Phase 11).**
+
+This is **not** historical product comparison. Do **not** design the primary system as:
+
+```text
+Current product  vs  old product version
+```
+
+Instead:
+
+```text
+THE LABEL PROVIDES THE EXPECTED CLAIM.
+THE CURRENT PRODUCT / CURRENT OBSERVATION PROVIDES THE OBSERVED VALUE.
+```
+
+```text
+                CURRENT PRODUCT
+                     |
+          +----------+----------+
+          |                     |
+          v                     v
+      LABEL/TEXT          CURRENT OBSERVATION
+          |                     |
+          v                     v
+         OCR              COMPUTER VISION /
+          |                USER MEASUREMENT
+          v                     |
+    EXPECTED VALUE              |
+          |                     |
+          +----------+----------+
+                     |
+                     v
+             VERIFICATION ENGINE
+                     |
+          +----------+----------+
+          |          |          |
+          v          v          v
+        MATCH    POTENTIAL    COULD NOT
+                 MISMATCH      VERIFY
+```
+
+## Example
+
+Label: Net Quantity **500 g**. User scale: **472 g**.
+
+```text
+Declared:   500 g
+Observed:   472 g
+Difference:  28 g
+```
+
+Do **not** automatically say “Fraud”, “Cheating”, or “Illegal product.”
+
+Say: **“Potential quantity discrepancy detected.”** Then apply applicable Legal Metrology requirements/tolerances **only if encoded from official sources**.
+
+Possible states: `MATCH` | `POTENTIAL_MISMATCH` | `MANUAL_REVIEW` | `COULD_NOT_VERIFY` | `NOT_APPLICABLE`.
+
+These verification states are **not** in `app/core/enums.py` today. Do not treat them as live API values.
+
+**Name collision:** `VerificationStatus` already exists. It means whether a **legal rule row** is `VERIFIED` / `UNVERIFIED` / `NEEDS_REVIEW`. It is **not** a label-to-product result. Do not reuse it for MATCH/MISMATCH.
+
+## Physical measurement rule
+
+A normal smartphone camera **cannot** reliably determine physical mass. Never claim the camera measures grams.
+
+```text
+LABEL → OCR → Declared quantity
++
+USER / EXTERNAL MEASUREMENT → Observed quantity
+→
+Declared vs Observed → Applicable rule / tolerance → Result
+```
+
+Physical millimetre measurement from an ordinary photograph requires calibration or a known reference. Never provide false precision. Pixels ≠ millimetres ≠ grams.
+
+## Planned verification types
+
+1. Quantity — 500 g vs 472 g  
+2. Count — 10 pieces vs 9 pieces  
+3. Text/value — MRP ₹50 vs visible MRP ₹50  
+4. Product identity — named product vs current package  
+5. Other observable consistency checks  
+
+Preserve where applicable: expected value, observed value, difference, verification method, confidence, evidence, status, applicable rule.
+
+## Planned module layout (files do **not** exist)
+
+```text
+backend/app/verification/     # PLANNED
+  verifier.py
+  quantity.py
+  count.py
+  text_match.py
+  product_identity.py
+  result.py
+```
+
+Do not create this package unless an implementation task asks for it. Keep it **beside** `compliance/`. Do not fold claim-vs-observation into random validator `if` statements.
+
+---
+
+# 8. Result language (mandatory)
+
+Always distinguish:
+
+| Concept | Meaning |
+| --- | --- |
+| `MATCH` | Observation agrees with the claim `[PLANNED]` |
+| `POTENTIAL_MISMATCH` | Observation differs from the claim `[PLANNED]` |
+| `COULD_NOT_VERIFY` | Insufficient evidence `[PLANNED]` |
+| `MANUAL_REVIEW` | Human check recommended (also an **implemented** legal status) |
+| `NOT_APPLICABLE` | Check does not apply |
+| `COMPLIANT` | Implemented legal overall status — **not** a legal certificate |
+| `POTENTIAL_NON_COMPLIANCE` | Implemented legal overall status |
+
+Do **not** reduce every uncertainty to a violation.
+
+If OCR cannot reliably read something, do **not** say “Information is missing.” Say **“Information could not be reliably verified.”**
+
+Implemented engine wording already uses: “Automated assessment”, “potential non-compliance detected”, “manual verification recommended”, “insufficient evidence”, “this is not a legal determination.”
+
+Consumer-facing legal language may use: Compliant, Potential Non-Compliance, Manual Review, Potential Mismatch, Could Not Verify — without pretending AI makes a final legal determination.
+
+---
+
+# 9. Target architecture vs current architecture
+
+## Target (not all boxes exist)
 
 ```text
                  MOBILE APP
             React Native + Expo
-                      │
-                      ▼
-                 FASTAPI API
-                      │
-       ┌──────────────┼──────────────┐
-       │              │              │
-       ▼              ▼              ▼
+                      |
+                      v
+                FASTAPI BACKEND
+                      |
+       +--------------+--------------+
+       |              |              |
+       v              v              v
     OpenCV        PaddleOCR       PostgreSQL
-    (planned)     (planned)      (schema ready)
-                      │
-                      ▼
-              INFORMATION EXTRACTION (schema only)
-                      │
-                      ▼
-              LEGAL METROLOGY ENGINE (implemented)
-                      │
-                      ▼
-              RESULT / EVIDENCE / PDF (contracts + tables only)
+    [PLANNED]     [PLANNED]      [IMPLEMENTED schema]
+       |              |
+       +-------+------+
+               |
+               v
+       INFORMATION EXTRACTION [PLANNED]
+               |
+       +-------+--------+
+       |                |
+       v                v
+LEGAL METROLOGY     NUTRITION ENGINE
+    ENGINE             [PLANNED]
+ [IMPLEMENTED]
+       |                |
+       +-------+--------+
+               |
+               v
+      LABEL-TO-PRODUCT VERIFICATION [PLANNED]
+               |
+               v
+        RESULT ENGINE
+               |
+       +-------+--------+
+       |       |        |
+       v       v        v
+    Legal  Verification Evidence
+               |
+               v
+            Reports
+```
+
+## Current (master)
+
+```text
+MOBILE (Expo mock data)  ✗ not wired to API
+
+FASTAPI
+  GET /health
+  GET /api/v1/health
+        |
+        +-- PostgreSQL schema (no CRUD API)
+        +-- LEGAL METROLOGY CORE (in-process, fixture-tested)
 ```
 
 ---
 
-## 7. Current implementation status
-
-| Feature | Status | Evidence |
-| --- | --- | --- |
-| FastAPI process | IMPLEMENTED | `backend/app/main.py`; `/health` returns `{"status":"ok"}` |
-| Error envelope + request logging | IMPLEMENTED | `app/core/exceptions.py`, `request_logging.py`, secret redaction |
-| Config via `.env` | IMPLEMENTED | `app/core/config.py`, `backend/.env.example` |
-| PostgreSQL driver + lazy engine | IMPLEMENTED | `app/database/connection.py`; API starts without DB |
-| Alembic migrations | IMPLEMENTED | `0001_foundation`, `0002_models`, `0003_legal_rule_traceability` |
-| 11 application tables | IMPLEMENTED (schema) | `app/database/models/` |
-| Pydantic integration contracts | IMPLEMENTED (contracts) | `app/schemas/` — tests use them; most are not HTTP |
-| Legal rule JSON + seed | IMPLEMENTED | `legal-rules/2011/rules.json`, `python -m seeds.legal_rules` |
-| Rule repository / loader | IMPLEMENTED | `repository.py`, `rule_loader.py` |
-| Rule versioning + applicability | IMPLEMENTED | `selection.py`; overlap → `OVERLAP` |
-| Deterministic validators | IMPLEMENTED | `app/compliance/validators/` + registry |
-| Compliance engine | IMPLEMENTED | `engine.py`; in-memory resolver in tests |
-| Scan / OCR HTTP API | NOT IMPLEMENTED | `ScanResponse` schema exists; no route |
-| PaddleOCR / OpenCV | NOT IMPLEMENTED | not in `requirements.txt`; no source matches |
-| Declaration extraction from images | NOT IMPLEMENTED | `Declaration` is a structured contract only |
-| Evidence image generation | NOT IMPLEMENTED | table + `EvidenceItem`; no generator |
-| PDF reports | NOT IMPLEMENTED | `reports` table + `ReportResult`; no PDF library |
-| Nutrition engine | NOT IMPLEMENTED | `NutritionResult` + `nutrition_data` table only |
-| Ingredient engine | NOT IMPLEMENTED | `IngredientItem` + `ingredients` table only |
-| Authentication | NOT IMPLEMENTED | `users` has no password hash; no auth routes |
-| Mobile UI (mock) | IMPLEMENTED | Expo 54 app, navigation, i18n, mock inspections |
-| Mobile camera | NOT IMPLEMENTED | no `expo-camera`; Scan is a placeholder |
-| Mobile ↔ FastAPI | NOT IMPLEMENTED | no API client; mock data only |
-| Product fingerprint / barcode / e-commerce | NOT IMPLEMENTED | not in code |
-| Font / mm calibration | NOT IMPLEMENTED | `READABILITY` / `TEXT_FORMAT` enums only |
-
----
-
-## 8. Backend architecture
+# 10. Backend (current)
 
 Root: `backend/`.
 
@@ -209,9 +414,9 @@ backend/
     core/                   config, enums, errors, logging
     database/               SQLAlchemy models, lazy engine
     schemas/                Pydantic contracts
-    compliance/             legal core (engine/validators do not import FastAPI)
-  migrations/               Alembic
-  seeds/                    legal rule seed
+    compliance/             legal core (no FastAPI/OCR/SQLAlchemy inside validators)
+  migrations/
+  seeds/
   tests/
   requirements.txt
   alembic.ini
@@ -219,90 +424,27 @@ backend/
   .env.example
 ```
 
-There is **no** `app/ai/`, `app/nutrition/` package, `app/evidence/` package, or `app/reports/` package. Those concerns exist as **schemas and tables**.
+Python: **3.13+** required (3.14 has been used in this workspace). Venv: `backend/.venv`.
 
-**Dependency direction (legal core):**
+Dependency direction (keep this):
 
 ```text
-API  →  (future services)  →  ComplianceEngine
-                                → RuleResolver
-                                → ValidatorRegistry
-                                → Validators
+API → (future services) → ComplianceEngine → RuleResolver → ValidatorRegistry → Validators
 ```
 
-Validators and `ComplianceEngine` must not import FastAPI, OCR, or SQLAlchemy. Production wiring: `RuleLoader` (session) implements `resolve()` via `select_for_inspection()`. Tests use `StaticRuleResolver`.
+`RuleLoader.resolve()` wraps `select_for_inspection()`. Tests use `StaticRuleResolver`.
 
-Python: README asks for **3.13+**. Tests have been run on **3.14** in this workspace. Virtualenv: `backend/.venv`.
+`get_db()` exists but is unused by routes. The API **starts without** Postgres. Persistence tests **skip** if Postgres is down.
 
----
+Installed packages: FastAPI, Uvicorn, Pydantic, pydantic-settings, SQLAlchemy, Alembic, psycopg, pytest, pytest-cov, httpx.
 
-## 9. Mobile architecture
-
-Root: `mobile/`. Expo SDK **~54.0.0**, React Native **0.81.5**, React **19.1.0**, TypeScript strict.
-
-**Not present:** NativeWind/Tailwind, Expo Camera, a working image-upload path (Home “upload image” goes to Coming Soon).
-
-**Screens that exist:**
-
-| Screen | Role |
-| --- | --- |
-| Home | Hero scan, stats, recent mock inspections; intelligence tiles → Coming Soon |
-| Scan | Camera frame placeholder; Capture replays a mock inspection |
-| Processing | Simulated pipeline steps |
-| Evidence | Mock highlighted evidence for a sample inspection |
-| History | List of mock inspections |
-| Profile | Language entry + Coming Soon rows |
-| Language | Locale picker (persisted) |
-| Coming Soon | Nutrition / ingredients / upload placeholders |
-
-Navigation: bottom tabs (Home, Scan, History, Profile) + native stack (Processing, Evidence, Language, Coming Soon). Theme tokens in `mobile/theme/index.ts`.
-
-Data: `mobile/data/mockInspections.ts`. Types in `mobile/types/inspection.ts` are written to **mirror** a future FastAPI `InspectionResponse` (camelCase).
+**Not** installed: OpenCV, PaddleOCR, ReportLab, Ollama.
 
 ---
 
-## 10. OCR architecture
+# 11. Legal Metrology engine `[IMPLEMENTED]`
 
-**Status: NOT IMPLEMENTED.**
-
-Planned engine: PaddleOCR. Not installed. No version, language list, CPU/GPU init, or preprocessing code exists.
-
-Teammate-1 **contract** (`app/schemas/ocr.py`):
-
-- `OCRResult`: `text`, `confidence` in `[0, 1]`, `bbox: [x1, y1, x2, y2]` pixels (`x2 >= x1`, `y2 >= y1`)
-- `ImageQualityResult`: `usable`, optional `reason`
-
-Mobile evidence overlay uses a **different** box: normalised `x, y, width, height` in `[0, 1]`. A future adapter must convert pixel OCR boxes. That conversion is **not implemented**.
-
----
-
-## 11. Computer vision architecture
-
-**Status: NOT IMPLEMENTED.**
-
-Intended: file validation, blur, brightness, glare, resolution, orientation, perspective, denoise, contrast, then OCR. None of those steps exist as code.
-
----
-
-## 12. Information extraction
-
-**Status: NOT IMPLEMENTED as a pipeline.** Structured `Declaration` **is** a contract and a DB table.
-
-`Declaration` (`app/schemas/declaration.py`): `field`, `value`, `confidence`, `source` (`OCR` / `MANUAL` / `SYSTEM`), optional pixel `bbox`, `status`.
-
-Statuses: `DETECTED`, `NOT_DETECTED`, `LOW_CONFIDENCE`, `MANUALLY_VERIFIED`. There is **no** `MISSING` status.
-
-`NOT_DETECTED` means extraction found nothing. It is **not** automatically “legally missing.”
-
-Validator field aliases (application names, not government names) include `manufacturer`, `commodity_name` / `name`, `net_quantity`, date fields, `mrp` / `retail_sale_price`, `consumer_care`, `country_of_origin` (`validators/support.py`).
-
-There is no extractor that turns OCR text into these fields.
-
----
-
-## 13. Legal Metrology rule engine
-
-**Status: IMPLEMENTED** as an in-process domain service. **Not** exposed as HTTP. **Not** an LLM.
+In-process domain service. **Not HTTP. Not an LLM.**
 
 ```text
 ComplianceRequest
@@ -318,114 +460,149 @@ ValidatorRegistry.get(validation_type)
 ValidationResult → aggregate → ComplianceAssessment
 ```
 
-Overall statuses (`ComplianceStatus`): `COMPLIANT` | `POTENTIAL_NON_COMPLIANCE` | `MANUAL_REVIEW`.
+`ComplianceStatus`: `COMPLIANT` | `POTENTIAL_NON_COMPLIANCE` | `MANUAL_REVIEW`.
 
-Validator outcomes (`ValidationOutcome`): `PASS` | `POTENTIAL_NON_COMPLIANCE` | `MANUAL_REVIEW` | `NOT_APPLICABLE`.
+`ValidationOutcome`: `PASS` | `POTENTIAL_NON_COMPLIANCE` | `MANUAL_REVIEW` | `NOT_APPLICABLE`.
 
 `PASS` is **not** inspection `COMPLIANT`.
 
-Aggregation:
+Aggregation: `POTENTIAL_NON_COMPLIANCE` > `MANUAL_REVIEW` > `COMPLIANT`.
 
-```text
-POTENTIAL_NON_COMPLIANCE  >  MANUAL_REVIEW  >  COMPLIANT
-```
+Zero applicable verified rules → `MANUAL_REVIEW`. Missing validator, validator exception, overlapping versions, unverified/draft rules → `MANUAL_REVIEW`, not a violation. Unverified rules cannot become violations.
 
-`NOT_APPLICABLE` and `PASS` are not failures. Zero applicable verified rules → `MANUAL_REVIEW`. Missing validator, validator exception, overlapping versions, unverified/draft rules → `MANUAL_REVIEW`, not a violation.
+`ComplianceAssessment.assessment_confidence` is always `null`. Do not invent an overall “87% compliant” score. Per-check validator confidence exists in `validators/support.py`.
 
-`assessment_confidence` is always `null`. Do not invent an “87% compliant” score.
+| `validation_type` | Validator | Notes |
+| --- | --- | --- |
+| `REQUIRED_DECLARATION` | `RequiredDeclarationValidator` | `[IMPLEMENTED]` |
+| `MRP_VALIDATION` | `MRPValidator` | `[IMPLEMENTED]` |
+| `NET_QUANTITY_VALIDATION` | `NetQuantityValidator` | `[IMPLEMENTED]` |
+| `DATE_VALIDATION` | `DateDeclarationValidator` | `[IMPLEMENTED]` |
+| `CONSUMER_CARE_VALIDATION` | `ConsumerCareValidator` | `[IMPLEMENTED]`; seed CARE row is still `REQUIRED_DECLARATION` |
+| `CONDITIONAL_REQUIREMENT` | none | Size rule → `MANUAL_REVIEW` if applicable |
+| `TEXT_FORMAT` / `READABILITY` | none | Enum only |
 
-Explanations use: “Automated assessment”, “potential non-compliance detected”, “manual verification recommended”, “insufficient evidence”, “this is not a legal determination.”
+### Seed rules (`legal-rules/2011/rules.json`)
 
-| `validation_type` | Validator |
-| --- | --- |
-| `REQUIRED_DECLARATION` | `RequiredDeclarationValidator` |
-| `MRP_VALIDATION` | `MRPValidator` |
-| `NET_QUANTITY_VALIDATION` | `NetQuantityValidator` |
-| `DATE_VALIDATION` | `DateDeclarationValidator` |
-| `CONSUMER_CARE_VALIDATION` | `ConsumerCareValidator` (seed CARE row is still `REQUIRED_DECLARATION`) |
+Rules live **outside** random Python files. Seed via `python -m seeds.legal_rules`.
 
-`CONDITIONAL_REQUIREMENT` (Rule 6(1)(f) size) has **no** validator. If it is applicable, the engine returns `MANUAL_REVIEW` for that rule.
-
-Prototype seed (`legal-rules/2011/rules.json`):
-
-| Code | Source | Type | Verification |
+| Code | Source | Type | Status |
 | --- | --- | --- | --- |
-| `LM-PC-MFR-001` | Rule 6(1)(a) | REQUIRED_DECLARATION | VERIFIED (excludes packaged food) |
+| `LM-PC-MFR-001` | Rule 6(1)(a) | REQUIRED_DECLARATION | VERIFIED; excludes packaged food |
 | `LM-PC-NAME-001` | Rule 6(1)(b) | REQUIRED_DECLARATION | VERIFIED |
 | `LM-PC-NETQ-001` | Rule 6(1)(c) | NET_QUANTITY_VALIDATION | VERIFIED |
-| `LM-PC-DATE-001` | Rule 6(1)(d) | DATE_VALIDATION | VERIFIED (excludes food and cosmetic) |
+| `LM-PC-DATE-001` | Rule 6(1)(d) | DATE_VALIDATION | VERIFIED; excludes food and cosmetic |
 | `LM-PC-MRP-001` | Rule 6(1)(e) | MRP_VALIDATION | VERIFIED |
 | `LM-PC-SIZE-001` | Rule 6(1)(f) | CONDITIONAL_REQUIREMENT | VERIFIED; only when `size_is_relevant` |
 | `LM-PC-CARE-001` | Rule 6(2) | REQUIRED_DECLARATION | VERIFIED |
-| `LM-PC-ORIGIN-001` | not in the 2011 India Code text used for the set | REQUIRED_DECLARATION | DRAFT / UNVERIFIED |
+| `LM-PC-ORIGIN-001` | not in the 2011 India Code text used | REQUIRED_DECLARATION | DRAFT / UNVERIFIED |
 
-Internal `rule_code` values are LabelGuard IDs, not government numbers. Seed severity is `UNSPECIFIED`.
+Internal `rule_code` values are LabelGuard IDs, not government numbers. Seed severity is `UNSPECIFIED`. Rows are `is_prototype: true`.
 
----
+Rule records support: rule code, name, description, category, requirement, validation type, severity, source document, source version, effective date, expiry date, applicability condition. **Versioning is `[IMPLEMENTED]`.**
 
-## 14. Rule versioning
-
-**Status: IMPLEMENTED.**
-
-A version is in force when:
+In force when:
 
 ```text
 effective_from <= inspection_date
 AND (effective_to IS NULL OR inspection_date <= effective_to)
 ```
 
-Aware datetimes become a **UTC calendar date**. The selector does not use “the latest row.”
+Aware datetimes become a UTC calendar date. Do **not** silently pick the latest row. Overlap → `ApplicabilityDecision.OVERLAP` → `MANUAL_REVIEW`. Unique DB key: `(rule_code, source_version, effective_from)`. Never delete historical rows to “update” a rule.
 
-Non-overlapping example: A `2021-01-01`–`2024-12-31`, B `2025-01-01`–open → 2023 uses A; 2026 uses B.
+Deeper docs: `docs/legal-rule-storage.md`, `docs/legal-rule-applicability.md`, `docs/compliance-validators.md`, `docs/compliance-engine.md`, `docs/compliance-testing.md`.
 
-**Overlap:** two open windows on the same date → `ApplicabilityDecision.OVERLAP`. Do **not** silently pick the later `effective_from`. The engine returns `MANUAL_REVIEW` plus a warning.
-
-Future windows are not evaluated. Expired windows are not current, but still apply inside their window.
-
-Unique DB key: `(rule_code, source_version, effective_from)`. Never delete historical rows to “update” a rule.
+Applicable declarations (manufacturer, packer, importer, address, origin, generic name, net quantity, MRP, dates, consumer care, unit sale price, dimensions, others) are controlled by **this engine**, not by an LLM. Extraction of those fields from images is still `[PLANNED]`.
 
 ---
 
-## 15. Evidence system
+# 12. Information extraction `[PLANNED]` as a pipeline
 
-**Status: PARTIALLY IMPLEMENTED** (data model + UI mock + bbox on validation results).
+`Declaration` contract and `declarations` table: `field`, `value`, `confidence`, `source` (`OCR` / `MANUAL` / `SYSTEM`), optional pixel `bbox`, `status`.
 
-- Table `evidence` (`AVAILABLE` / `UNAVAILABLE` / `FAILED`)
-- Schema `EvidenceItem`, `EvidenceUnavailable`
-- Validators copy declaration bbox/source/confidence/status
-- Mobile `EvidenceScreen` is mock
+Statuses: `DETECTED` | `NOT_DETECTED` | `LOW_CONFIDENCE` | `MANUALLY_VERIFIED`. There is **no** `MISSING` status.
 
-**Not implemented:** highlighted-image generation, EvidenceService, upload/attach in an API.
+`NOT_DETECTED` means extraction found nothing. It is **not** automatically legally missing. `NOT_DETECTED` + low OCR confidence → `MANUAL_REVIEW`.
 
----
+Validator field aliases (`validators/support.py`) include manufacturer/packer/importer, `commodity_name`/`name`, `net_quantity`, date fields, `mrp`/`retail_sale_price`, consumer care, `country_of_origin`. There is no extractor from OCR text.
 
-## 16. Nutrition system
-
-**Status: NOT IMPLEMENTED** as an engine.
-
-Schema `NutritionResult`; table `nutrition_data`; mobile tile → Coming Soon. Legal analysis must work when nutrition is absent. Never invent nutrient values.
+Preserve: value, confidence, bounding box, source, extraction method.
 
 ---
 
-## 17. Ingredient system
+# 13. OCR and image processing
 
-**Status: NOT IMPLEMENTED** as an engine.
+**OCR engine:** `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]`.
 
-Schema `IngredientItem`; table `ingredients`; mobile tile → Coming Soon. Do not diagnose conditions or call a product “dangerous” from ingredients alone.
+Planned engine: PaddleOCR. Not installed. No CPU/GPU init, language list, or preprocessing code in master.
+
+Contract (`app/schemas/ocr.py`):
+
+- `OCRResult`: `text`, `confidence` in `[0, 1]`, `bbox: [x1, y1, x2, y2]` pixels (`x2 >= x1`, `y2 >= y1`)
+- `ImageQualityResult`: `usable`, optional `reason`
+
+OCR/AI may do: image understanding, text detection, OCR, extraction, classification, normalization, explanation. They must **not** make final legal decisions.
+
+Intended image pipeline `[PLANNED]`:
+
+```text
+Image → Quality check → Blur → Brightness/glare → Rotation → Perspective
+  → Enhancement → OCR
+```
+
+Poor-quality images should yield: **“Image quality insufficient. Please capture the label again.”** — not unreliable compliance conclusions.
+
+Mobile evidence overlay uses normalised `x, y, width, height` in `[0, 1]`. Pixel OCR boxes need a future adapter. That conversion is **not implemented**.
 
 ---
 
-## 18. Database architecture
+# 14. Evidence `[PARTIALLY IMPLEMENTED]`
 
-**PostgreSQL** (SQLAlchemy 2 + psycopg). SQLite is not supported.
+Current: table `evidence` (`AVAILABLE` / `UNAVAILABLE` / `FAILED`); schemas `EvidenceItem`, `EvidenceUnavailable`; validators copy bbox/source/confidence; mobile `EvidenceScreen` is mock.
 
-The API **starts without** Postgres. First session uses `connect_timeout: 3`. Persistence tests **skip** if Postgres is down.
+Not in master: highlighted-image generation, EvidenceService, upload API, measurement-evidence capture, purchase proof.
 
-Alembic head: `0003_legal_rule_traceability`.
+Planned evidence (Legal Metrology **and** label-to-product): original product image, label image, highlighted OCR region, expected value, observed value, measurement evidence, purchase proof, user notes, timestamp, confidence, applicable rule.
+
+Reuse the existing `evidence` table. Do not duplicate it.
+
+---
+
+# 15. Nutrition `[PLANNED]` as an engine
+
+Secondary consumer feature. Schema `NutritionResult` (`available`, optional `payload` dict); table `nutrition_data`; mobile tile → Coming Soon.
+
+Never invent missing values. Use **“Not detected.”** No medical claims.
+
+Planned extractables: calories/energy, protein, carbohydrates, total sugar, added sugar where available, fat, saturated fat, trans fat, fiber, sodium, other available values.
+
+## Multi-product comparison `[PLANNED]` (Phase 13)
+
+Scan **current** products A, B, C. Compare calories, sugar, added sugar, protein, fiber, sodium, fat, saturated fat, trans fat, carbohydrates.
+
+User priorities (examples): lower sugar, higher protein, higher fiber, lower sodium, lower saturated fat.
+
+Use a **deterministic, explainable** ranking: “Product B ranks highest based on the user's selected parameters,” with why (lowest sugar, highest protein, higher fiber, higher calories). Never say “Product B is the healthiest.” No medical claims. Keep the UI simple. Do not build a massive recommendation engine.
+
+This is **current A vs current B vs current C**. It is **not** historical SKU change detection.
+
+---
+
+# 16. Ingredients `[PLANNED]` as an engine
+
+Schema `IngredientItem` today: `name`, optional `raw_text`. Table `ingredients`. Coming Soon tile.
+
+Planned: ingredient name, simple explanation, informational flag, confidence/source. Informational language only. No unsupported medical claims. Do not call a product “dangerous” from a list.
+
+---
+
+# 17. Database `[IMPLEMENTED]` schema
+
+PostgreSQL only (SQLAlchemy 2 + psycopg). SQLite is not supported. `DATABASE_URL` must be `postgresql+psycopg://...` (`postgresql://` is rewritten). Alembic head: `0003_legal_rule_traceability`.
 
 | Table | Purpose |
 | --- | --- |
-| `users` | `display_name`, `role`, optional unique `email`. No password. |
+| `users` | `display_name`, `role` (default `INSPECTOR`), optional unique `email`. No password |
 | `products` | `name`, `category`, optional `brand` |
 | `product_images` | generated `storage_path`; do not use `original_filename` as a path |
 | `inspections` | status, optional confidence, `inspected_at`, warnings, `is_demo` |
@@ -435,265 +612,128 @@ Alembic head: `0003_legal_rule_traceability`.
 | `legal_rules` | versioned rules |
 | `violations` | potential findings (not a legal verdict) |
 | `evidence` | optional artefacts |
-| `reports` | PDF metadata (`PENDING` / `READY` / `FAILED`) |
+| `reports` | PDF metadata `PENDING` / `READY` / `FAILED` |
 
-Inspection children cascade from inspection. Product delete is **RESTRICT** while inspections exist. No live CRUD API yet. `get_db()` exists but is unused by routes.
+Inspection children cascade from inspection. Product delete is **RESTRICT** while inspections exist. No live CRUD API.
+
+**Planned tables (do not exist):** `verification_results`, `verification_checks`, `measurement_observations`, `comparison_sessions`, `comparison_items`.
+
+When added, reuse existing product/declaration/inspection models. Do not duplicate data. `evidence` already exists.
 
 ---
 
-## 19. API architecture
+# 18. API
 
 Prefix: `/api/v1`.
 
-| Method | Path | Purpose | Body |
-| --- | --- | --- | --- |
-| GET | `/health` | Liveness (unprefixed for probes) | `{"status":"ok"}` |
-| GET | `/api/v1/health` | Same, versioned | `{"status":"ok"}` |
+**Implemented:**
 
-That is the **entire** HTTP surface. `ScanResponse` documents a future `POST /api/v1/scans` and is **not** registered.
-
-Error envelope:
-
-```json
-{ "error": { "code": "NOT_FOUND", "message": "...", "details": {} } }
-```
-
-OpenAPI: http://127.0.0.1:8000/docs when the server is running.
-
-CORS: only if `CORS_ORIGINS` is non-empty. Default: no CORS headers.
-
----
-
-## 20. PDF reports
-
-**Status: NOT IMPLEMENTED.** Table + `ReportResult` only. A failed PDF must not delete the inspection. Future PDFs must state that results are AI-assisted assessments.
-
----
-
-## 21. Inspection history
-
-**Status: PARTIALLY IMPLEMENTED.** DB tables exist. Mobile History uses **mock** records. No `GET /inspections` API.
-
----
-
-## 22. Product fingerprinting
-
-**Status: NOT IMPLEMENTED.** No barcode/QR pipeline, no “previously inspected” matching.
-
----
-
-## 23. Multilingual support
-
-1. **UI translation — IMPLEMENTED for listed locales.** `i18next` + `expo-localization` + AsyncStorage. Locales: **en, hi, mr, bn, ta, gu, te**. Device language at first launch; Profile → Language persists. Kannada, Malayalam, Punjabi are **not** present.
-2. **Multilingual label OCR** (e.g. mapping शुद्ध मात्रा → `net_quantity`) — **NOT IMPLEMENTED.**
-
-Engine field names stay English application keys.
-
----
-
-## 24. Security (actual)
-
-Present:
-
-- `.env` gitignored; `.env.example` documents local defaults
-- `DATABASE_URL` as `SecretStr`; logs redact password/token/api_key/database_url
-- Pydantic validation (confidence 0..1; no `MISSING`)
-- Clients do not receive stack traces
-- SQLAlchemy parameterized queries in the rule repository
-
-Not present: password hashing, sessions/JWT, RBAC enforcement, upload size/MIME checks (no upload API).
-
-**Never commit** `.env`, passwords, API keys, tokens, or private keys.
-
----
-
-## 25. Testing
-
-`backend/tests/`, pytest, `pytest-cov` listed in requirements.
-
-- Unit: validators, parsers, selection
-- Integration: resolver + registry + engine (in-memory)
-- Domain: `test_pipeline.py`
-- Persistence: skipped without Postgres
-
-Covered legal-safety cases include: low-confidence `NOT_DETECTED` is not a violation; confirmed absence can be `POTENTIAL_NON_COMPLIANCE`; historical versions; future/expired; overlap refusal; unverified rules; missing validator; empty applicable set; validator exceptions; determinism.
-
-Mobile has **no** automated test suite.
-
-From `backend/`: `pytest`. Coverage: `pytest --cov=app/compliance`.
-
----
-
-## 26. Git workflow
-
-Inspected locally:
-
-- Branch: `main`, tracking `origin/main`
-- Remote `origin`: `https://github.com/mr-diwakar/labelguard-ai.git`
-- Recent commits seen: `initial commit`; `Stable core before teammate integration`
-
-**Before any future push (only if the owner explicitly asks):** run `git remote -v`. Never push to an unknown remote. This file does not authorise push, pull, merge, or credential changes.
-
-Recommended teammate branches: `feature/ocr`, `feature/nutrition`, `feature/evidence` → tests → PR → review → merge. Do not copy teammate folders into this master repo without an explicit integration phase.
-
----
-
-## 27. Team responsibilities
-
-**Master / architecture (this repo’s legal core and API contracts):** architecture, integration, Legal Metrology engine, database schema, tests, conflict resolution.
-
-**Teammate 1:** OCR / OpenCV / image quality via `OCRResult` / `ImageQualityResult`.
-
-**Teammate 2:** Nutrition / ingredients via `NutritionResult` / `IngredientItem`; must not block legal analysis.
-
-**Teammate 3:** Evidence images / PDF via `EvidenceItem` / `ReportResult`; failure is a warning/status, not a lost inspection.
-
-Do not duplicate OCR init, legal rules, or schemas.
-
----
-
-## 28. Integration strategy
-
-Intended scan path (not built):
-
-```text
-Mobile image → POST scan → quality + OCR → declarations
-  → ComplianceEngine.evaluate(...) → persist
-  → optional evidence/PDF → InspectionResponse
-```
-
-Use `app/schemas/`. Inject `RuleLoader(session)` or `StaticRuleResolver`. No SQL inside validators. No hardcoded production API URLs in mobile without config.
-
----
-
-## 29. Development phases
-
-**Backend phases actually used in this repository:**
-
-| Phase | Name | Status |
+| Method | Path | Purpose |
 | --- | --- | --- |
-| 1 | FastAPI + health | Done |
-| 2 | Logging, error envelope | Done |
-| 3 | PostgreSQL + Alembic foundation | Done |
-| 4 | Application tables | Done |
-| 5 | Pydantic contracts | Done |
-| 6 | Legal rule storage + seed | Done |
-| 7 | Versioning + applicability | Done |
-| 8 | Validators + registry | Done |
-| 9 | Compliance engine | Done |
-| 10 | Testing, hardening, overlap refusal | Done |
+| GET | `/health` | Liveness (unprefixed copy for supervisors) |
+| GET | `/api/v1/health` | Versioned liveness |
 
-A separate **product** sequence (image processing, PaddleOCR, extraction, scan API, evidence, nutrition, mobile integration, PDF) is still ahead. That numbering is **not** the same as backend Phases 1–10.
+Error body: `{ "error": { "code": "...", "message": "...", "details": {} } }`. No stack traces to clients. Codes include `VALIDATION_ERROR` (422), `NOT_FOUND` (404), `HTTP_ERROR`, `INTERNAL_ERROR` (500). CORS off unless `CORS_ORIGINS` is set.
 
-Do not start the next major product phase without an explicit prompt.
+`ScanResponse` is a **future** scan contract in `app/schemas/scan.py`. There is no `POST /scans`.
+
+**Future APIs (not implemented):** `POST /verification`, `POST /verification/quantity`, `POST /verification/count`, `POST /comparison`, `GET /products/{id}/verification`.
 
 ---
 
-## 30. Current development status
+# 19. Mobile `[IMPLEMENTED]` mock UI
 
-The **backend legal core** is the mature piece. Mobile is a visual/i18n prototype. End-to-end integration has not started.
+Root: `mobile/`. Expo SDK **~54.0.0**, React Native **0.81.5**, React **19.1.0**, TypeScript. `expo-localization` + i18next. Locales: `en`, `hi`, `mr`, `bn`, `ta`, `gu`, `te`.
 
-### Currently implemented
+**Not present:** NativeWind, `expo-camera`, API client, working image upload (goes to Coming Soon).
 
-- FastAPI health service with structured errors and redacted logs
-- PostgreSQL schema + migrations + optional seed
-- Versioned legal rules (prototype 2011 set)
-- Applicability + historical selection + overlap detection
-- Five deterministic validators + registry
-- ComplianceEngine + ComplianceAssessment
-- Pytest suite for the legal core
-- Expo 54 mobile shell with mock Legal Metrology UI and 7 UI languages
+| Screen | Role |
+| --- | --- |
+| Home | Hero scan, mock stats, recent mock inspections; intelligence tiles → Coming Soon |
+| Scan | Camera-frame placeholder; Capture replays a mock inspection |
+| Processing | Simulated pipeline steps |
+| Evidence | Mock highlighted evidence |
+| History | Mock inspections |
+| Profile | Language + Coming Soon rows |
+| Language | Locale picker (persisted) |
+| Coming Soon | Nutrition / ingredients / upload placeholders |
 
-### Partially implemented
+Navigation: tabs Home / Scan / History / Profile + stack for Processing, Evidence, Language, Coming Soon. Types in `mobile/types/inspection.ts` mirror a future camelCase `InspectionResponse`.
 
-- Inspection/evidence/report/nutrition/ingredient **tables and contracts** without services
-- Mobile history/evidence/scan **screens** without camera or API
-- UI i18n without label-language OCR
-
-### In development
-
-No named open backend phase. Next expected product work, when explicitly requested: integration contracts, then OCR/scan wiring.
-
-### Planned
-
-PaddleOCR, OpenCV quality, extraction, scan API, auth, evidence images, PDF, nutrition/ingredient engines, barcode/fingerprint, e-commerce URL analysis, calibrated font measurement.
-
----
-
-## 31. Known limitations
-
-- No camera, no real OCR, no scan API
-- Engine is not persisted through HTTP
-- Seed rules are a **prototype** of selected 2011 clauses, not the full Rules plus all amendments
-- Country-of-origin row is an unverified draft
-- Size rule has no validator
-- Consumer-care validator does not certify legal sufficiency of phone/email format
-- MRP/quantity/date parsers are structural, not complete unit-law or date-display law
-- No overall assessment-confidence methodology
-- Postgres is often absent on the Windows machine; persistence tests skip
-- Root `README.md` is empty
-- `mobile/AGENTS.md` mentions Expo v57 docs while the app is SDK 54 — prefer `package.json`
-
----
-
-## 32. Future roadmap (MVP first)
-
-**MVP:** Legal Metrology (MRP, net quantity, manufacturer/name, applicable dates, consumer care, confidence, evidence, rule engine) plus platform (mobile, FastAPI, PostgreSQL, history, PDF, English/Hindi).
-
-Do **not** expand nutrition, e-commerce, or extra languages until scan → declaration → engine → assessment is real.
-
-Strongest demo:
+## Planned consumer UI (not built)
 
 ```text
-Label → detected declaration → applicable rule → potential issue
-  → highlighted evidence → recommended manual verification
+HOME → SCAN PRODUCT → IMAGE PREVIEW → PROCESSING → PRODUCT OVERVIEW
+  → LEGAL / LABEL CHECK → LABEL-TO-PRODUCT VERIFICATION → WHAT WAS VERIFIED?
+  → EVIDENCE → NUTRITION → INGREDIENTS → COMPARE PRODUCTS → REPORT / SAVE
 ```
 
----
+Primary home should emphasize **Scan Product**, not an inspector dashboard.
 
-## 33. Important engineering principles
+Potential future sections: My Scans, Saved Products, Compare, Evidence, Reports, Settings.
 
-1. Do not over-engineer the MVP; no extra microservices.
-2. Keep legal rules out of scattered `if mrp_missing` blocks.
-3. Keep OCR separate from compliance; keep nutrition separate from legal status.
-4. Preserve bounding boxes and per-field confidence.
-5. Never invent extracted values.
-6. Never turn OCR uncertainty into a violation.
-7. Never let an LLM make the final legal decision.
-8. Do not claim millimetre text height without calibration.
-9. Prefer `MANUAL_REVIEW` when unsure.
-10. Environment variables for config; no hardcoded secrets.
-11. Smallest safe change; do not overwrite working code for style.
-12. Test the legal core without Postgres/OCR; keep DB tests skippable.
+Result screen priority: (1) Legal Metrology (2) Label-to-product (3) Evidence (4) Nutrition (5) Ingredients.
 
----
+Example (not current JSON):
 
-## 34. Important legal-design principles
+```text
+LEGAL LABEL CHECK
+✓ MRP detected
+✓ Net quantity detected
+✓ Manufacturer detected
 
-- Official DoCA / India Code sources only for new rules.
-- Do not invent rule numbers or applicability.
-- Only `ACTIVE` + `VERIFIED` rows are production law in the engine.
-- Historical inspections must remain reproducible after later amendments.
-- Output is an **automated assessment**, never “this product is legal/illegal.”
+LABEL-TO-PRODUCT VERIFICATION
+Declared: 500 g
+Observed: 472 g
+Status: Potential Mismatch
+Confidence: 94%
 
----
+[View Evidence]  [Verify Again]
+```
 
-## 35. AI safety principles
+Replace historical “what changed?” with **“What was verified?”** / **“What did we verify?”**
 
-When AI is added, it may detect, OCR, extract, classify, normalise, and explain. The Legal Metrology engine stays deterministic.
-
-If the image is blurry and MRP cannot be read:
-
-- Wrong: “MRP missing” as a violation.
-- Right: “MRP could not be reliably verified. Manual verification recommended.”
+Comparison UI `[PLANNED]`: scan A/B/C → compare nutrition → user priorities → simple table + ranking explanation.
 
 ---
 
-## 36. Local-development instructions
+# 20. Consumer action / complaint scope
 
-Work only in this local workspace. Do not modify Cursor account, Origin, Cloud Agents, or GitHub settings as part of coding.
+Do **not** make LabelGuard a government authority. Do **not** create a fake government complaint system.
 
-### Backend
+The app may eventually provide “What can I do next?” with evidence preservation and general consumer guidance. If official grievance functionality is added later, **direct users to official government channels**.
+
+LabelGuard must not pretend to issue government orders or legal determinations.
+
+---
+
+# 21. Reports and history
+
+PDF generation: `[PLANNED]` (`reports` table only). History: `[PARTIALLY IMPLEMENTED]` (table + mock list). Product fingerprint / barcode / previously inspected SKU: `[FUTURE]` and **not** the core verification story.
+
+---
+
+# 22. Testing `[IMPLEMENTED]` for the legal core
+
+`backend/tests/`. Run from `backend/` with venv: `pytest`. Persistence tests skip if Postgres is down.
+
+Includes: health, errors, logging, schemas, models, database, compliance (engine, validators, rule storage, repository, selection, pipeline, edge cases, inputs/safety, performance). Fixtures: declarations, inspections, rules, validators.
+
+Legal tests use **manual declaration fixtures**. They do **not** require OCR, camera, or a live scan.
+
+No verification-engine tests (module absent). No mobile test suite. This file does not freeze a pass count.
+
+---
+
+# 23. Security (actual vs intended)
+
+**Actual:** `.env` gitignored; `DATABASE_URL` is `SecretStr` and must not be logged; log redaction; Pydantic validation; no client stack traces; CORS off by default. **No** auth, **no** upload API, therefore **no** image-size limits or secure-filename handling yet.
+
+**Intended when those features exist:** environment variables, file validation, input validation, image size limits, secure filenames, API validation, password hashing if auth exists, role-based access if auth exists, no secrets in Git. Never put real credentials in source code. `users` currently has **no password column**.
+
+---
+
+# 24. Local development
 
 ```powershell
 cd backend
@@ -702,152 +742,211 @@ python -m venv .venv
 pip install -r requirements.txt
 copy .env.example .env
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
+# optional: alembic upgrade head; python -m seeds.legal_rules; pytest
 
-Health: `curl http://127.0.0.1:8000/health`
-
-Optional Postgres:
-
-```powershell
-alembic upgrade head
-python -m seeds.legal_rules
-pytest
-```
-
-### Mobile
-
-```powershell
 cd mobile
 npm install
 npx expo start --lan
 ```
 
-(`npm install` — verify before use if `node_modules` already exists.)
-
-Expo Go must match **SDK 54**. Phone and PC on the same Wi-Fi. URL form: `exp://<LAN-IP>:8081`.
-
-### System dependencies
-
-- Python 3.13+ (3.14 observed)
-- Node.js for Expo (version not pinned in-repo)
-- PostgreSQL 16+ optional for API liveness, required for migrations/seed
-- **Not required for the current core:** PaddleOCR, OpenCV, CUDA, Ollama
+Expo Go SDK **54**. Postgres optional for `/health`. OpenAPI: http://127.0.0.1:8000/docs
 
 ---
 
-## 37. How a future developer should continue
+# 25. Roadmap
 
-1. Read this file.
-2. Inspect `backend/app/compliance/`, `mobile/`, `legal-rules/`, `docs/`.
-3. Treat planned features as **missing** until runtime code and tests exist.
-4. Next logical product step after backend Phase 10: **integration contracts** (scan API shape, extraction interface, wiring `RuleLoader`) — only when explicitly requested.
-5. Then: OCR adapter, mobile client, evidence/PDF.
+**Completed in master:** backend foundation phases 1–10 (FastAPI, DB schema, contracts, legal storage, versioning, validators, engine, tests) plus Expo mock UI.
 
-Do not rewrite the engine to call an LLM. Do not invent amendments in `rules.json`.
+**Phase 11 — `[PLANNED]` — Label-to-Product Verification Engine (NEXT)**  
+Expected value extraction, current observation input, quantity/text/count where feasible, confidence, result states, evidence linkage.
+
+**Phase 12 — `[PLANNED]` — Advanced verification**  
+Richer checks, identity, more observation types, tighter evidence.
+
+**Phase 13 — `[PLANNED]` — Multi-product nutrition comparison**  
+Scan several products, user priorities, deterministic scoring, explainable ranking.
+
+**Phase 14 — `[PLANNED]` — Evidence / reporting enhancements**  
+Highlights, measurement evidence, reports, saved verification.
+
+**Phase 15 — `[PLANNED]` — Consumer dashboard / history**  
+Scans, saved products, comparisons, evidence, reports.
+
+**Also required for a real consumer loop, still `[PLANNED]`:** camera, image quality, OCR, declaration extraction, scan API. These were product phases 5–8 and are **not** done in master.
+
+**`[FUTURE]`:** calibrated measurement, barcode, QR, multilingual expansion beyond current UI locales, offline mode, e-commerce analysis, advanced computer vision, optional local LLM (**explanation only**), professional/enforcement **mode**.
+
+## What not to build as core MVP
+
+Fake government complaint authority; complex government authentication; blockchain; unnecessary microservices; custom model training without evidence of need; massive recommendation engine; social complaint network; payment/refund system; complex authority workflow; historical “what changed vs old SKU” as the primary feature.
 
 ---
 
-# File inventory (concise)
+# 26. Teammate work policy
 
-### Backend
+Some teammates may develop OCR, nutrition, evidence, UI, or computer-vision modules in **separate folders, repos, branches, ZIP files, or local projects**.
 
-| Path | Purpose | Status |
-| --- | --- | --- |
-| `app/main.py` | FastAPI app | Live |
-| `app/api/health.py` | Health routes | Live |
-| `app/core/*` | Config, enums, logging, errors | Live |
-| `app/database/*` | Models + lazy engine | Schema live |
-| `app/schemas/*` | Contracts | Live |
-| `app/compliance/engine.py` | Orchestration | Live |
-| `app/compliance/selection.py` | Versions + applicability | Live |
-| `app/compliance/validators/*` | Deterministic checks | Live |
-| `app/compliance/registry.py` | Type → validator | Live |
-| `seeds/legal_rules.py` | Idempotent seed | Live |
-| `migrations/versions/0001–0003` | Schema | Live |
+Unless that code is **explicitly integrated into this master repository**, it is:
 
-### Mobile
+**`[TEAMMATE WORK — NOT INTEGRATED]`**
 
-| Path | Purpose | Status |
-| --- | --- | --- |
-| `App.tsx`, `navigation/` | Shell | Live mock |
-| `screens/*` | UI listed above | Live mock |
-| `i18n/` | 7 locales | Live |
-| `data/mock*.ts` | Demo inspections | Live mock |
-| `types/inspection.ts` | Future API shape | Contract |
+Do **not** mark it as part of the current application.
 
-### Legal rules
+In master today, teammate **contracts** exist (`OCRResult`, `NutritionResult`, `IngredientItem`, `EvidenceItem`, comments in `backend/README.md`). Teammate **implementations** of OCR/nutrition/evidence-image/PDF are **not** in this tree.
 
-| Path | Purpose |
+---
+
+# 27. Team ownership
+
+The project owner / master developer retains:
+
+- overall architecture
+- integration
+- core Legal Metrology engine
+- verification architecture
+- shared database contracts
+- shared API contracts
+- main application integration
+- final testing
+- conflict resolution
+- release readiness
+
+Teammates should work on isolated modules and feature branches (`feature/ocr`, `feature/nutrition`, `feature/evidence`, later `feature/verification`). Do not develop on `main`.
+
+**Suggested future division (assign only after reviewing master):**
+
+| Person | Area |
 | --- | --- |
-| `legal-rules/2011/rules.json` | Prototype clauses |
-| `legal-rules/README.md` | How to add amendments |
-| `legal-rules/sources/`, `amendments/` | Notes / placeholders |
+| Teammate 1 | Label-to-product verification submodule |
+| Teammate 2 | Multi-product nutrition comparison |
+| Teammate 3 | Evidence / reporting / UI support |
 
-### Tests
-
-| Path | Purpose |
-| --- | --- |
-| `tests/test_health.py` and related | Phases 1–5 |
-| `tests/compliance/test_rule_*.py` | Storage, selection |
-| `tests/compliance/test_validators.py` | Phase 8 |
-| `tests/compliance/test_engine.py` | Phase 9 |
-| `tests/compliance/test_pipeline.py` and related | Phase 10 |
-| `tests/fixtures/` | Shared fixtures |
-
-### Other docs
-
-`docs/legal-rule-storage.md`, `legal-rule-applicability.md`, `compliance-validators.md`, `compliance-engine.md`, `compliance-testing.md`, `backend/README.md`.
-
-### Dependencies (current phases)
-
-Python: FastAPI, Uvicorn, Pydantic, pydantic-settings, SQLAlchemy, Alembic, psycopg, pytest, pytest-cov, httpx.
-
-Node: Expo 54, React Navigation, AsyncStorage, i18next, expo-localization, RN screens/safe-area, RN web.
-
-No PaddleOCR, OpenCV, reportlab, camera SDK, or LLM client.
+Teammates must **not** independently rewrite: core database architecture, shared schemas, authentication, configuration, Legal Metrology rule engine, main application architecture — without coordination.
 
 ---
 
-# Account and repository safety
+# 28. Integration principles
 
-This project must stay independent of whoever owns a Cursor subscription.
+Prefer: clear interfaces, Pydantic schemas, service functions/classes, API contracts, isolated modules, unit tests, minimal dependencies.
 
-- Do **not** change Cursor account, team, org, billing, privacy, cloud agents, or indexing as part of development.
-- Do **not** connect or disconnect GitHub inside Cursor, create remotes, or upload the repo to an external AI service without explicit permission.
-- GitHub ownership stays with the human project owner. An origin URL is **not** permission to push.
-- Before any future push: `git remote -v`. Never push to an unknown remote.
-- Do not create SSH keys or change git config unless the owner explicitly asks.
-- Do not commit `.env`.
+Avoid: duplicate OCR, duplicate business logic, duplicate database models, direct modification of unrelated modules, hard-coded paths, hard-coded URLs, circular imports, hidden global state.
 
-Remote observed at inspection time: `origin` → `https://github.com/mr-diwakar/labelguard-ai.git`. Treat as **information only**.
+The master developer must be able to replace a teammate implementation later without rewriting the entire application.
+
+## When integrating teammate work later
+
+1. Inspect teammate code.  
+2. Compare it with master architecture.  
+3. Identify dependencies.  
+4. Check API/data contracts.  
+5. Copy/integrate **only** the required module.  
+6. Adapt interfaces if necessary.  
+7. Add tests.  
+8. Run existing tests.  
+9. Run feature-specific tests.  
+10. Test the end-to-end flow.  
+11. Only then merge into master.
+
+**Never blindly copy an entire teammate project over the master repository.**
 
 ---
 
-# Instructions for future AI assistants
+# 29. Cursor account safety
 
-Before changing code:
+The user is developing with a Cursor subscription/account that belongs to **another person**.
 
-1. Read `docs/PROJECT_CONTEXT.md`.
-2. Inspect the actual repository.
-3. Determine current implementation status from files, not from chat memory.
-4. Do not assume planned features are implemented.
-5. Identify dependencies (`backend/requirements.txt`, `mobile/package.json`).
-6. Explain which files will change and why.
-7. Make the smallest safe change. Do not recreate working files.
-8. Test the change (`pytest` for the backend legal core).
-9. Report exactly what changed.
-10. Do not modify unrelated files (especially `mobile/` during backend-only work, and vice versa).
+This project **must remain independent of that Cursor account**.
 
-For major phases:
+Future AI agents **MUST NOT**:
 
-- Explain the goal
-- List files
-- Give commands
-- Implement
-- Test
-- Explain output
-- **Stop for confirmation**
+- change Cursor account, settings, or subscription
+- connect GitHub to Cursor
+- connect external accounts
+- modify Git credentials or SSH configuration
+- modify GitHub settings
+- push code automatically
+- change Git remotes
+- perform account-level actions
 
-Do not silently continue into the next major phase.
+All development must remain **local and repository-based**. The project itself must **not** depend on Cursor. It must remain usable in VS Code, Cursor, another IDE, the command line, and CI/CD.
 
-Work **only** in this local LabelGuard workspace unless the user explicitly expands the scope.
+---
+
+# 30. Git safety
+
+Before any Git operation involving a remote:
+
+```text
+git remote -v
+```
+
+must be checked.
+
+Never assume the remote is correct. Never push without **explicit** user instruction. Never commit, pull, create branches, or merge unless the user asks.
+
+This document does not authorize Git operations.
+
+---
+
+# 31. Instructions for future AI assistants
+
+1. Read `docs/PROJECT_CONTEXT.md` first.  
+2. Inspect the actual repository.  
+3. Check implementation status from files.  
+4. Never assume planned features are implemented.  
+5. Never assume teammate work is integrated.  
+6. Identify affected files before coding.  
+7. Explain architecture impact.  
+8. Make minimal changes.  
+9. Avoid unrelated modifications.  
+10. Preserve existing working functionality (especially the legal core).  
+11. Follow existing API/data contracts.  
+12. Write tests for new functionality.  
+13. Test integration.  
+14. Never silently overwrite working code.  
+15. Never change account/settings/Git configuration.  
+16. Stop after each major phase and wait for confirmation.
+
+Workflow:
+
+```text
+GOAL → CURRENT CODE INSPECTION → FILES TO CHANGE → ARCHITECTURE IMPACT
+  → API CONTRACT → DATA CONTRACT → IMPLEMENTATION
+  → UNIT TESTS → INTEGRATION TESTS → MANUAL TEST → CONFIRMATION → NEXT PHASE
+```
+
+Do not rewrite `ComplianceEngine` into an LLM. Do not invent legal tolerances. Do not add government-complaint theatre. Do not treat historical product comparison as the core feature. Do not claim the camera weighs products.
+
+---
+
+# 32. Known limitations (master)
+
+- No camera, OCR engine, scan API, verification engine, or nutrition comparison
+- Legal engine tested with **manual declarations**
+- Mobile is mock; Home still resembles an inspection dashboard
+- Prototype 2011 rules only; later amendments not encoded except draft origin
+- Size validator missing; CARE seed uses `REQUIRED_DECLARATION`
+- Origin rule is DRAFT / UNVERIFIED
+- No overall legal percentage
+- `users.role` default `INSPECTOR` and FastAPI “inspection platform” copy do not match consumer-first identity
+- No auth, PDF, or upload validation
+
+---
+
+# 33. File inventory (master)
+
+**Backend:** `app/main.py`; `api/health.py`, `api/router.py`; `core/config.py`, `enums.py`, `exceptions.py`, `logging_config.py`, `request_logging.py`; `database/` models (`user`, `product`, `inspection`, `declaration`, `nutrition`, `ingredient`, `legal_rule`, `violation`, `evidence`, `report`); `schemas/` (`common`, `ocr`, `declaration`, `product`, `inspection`, `legal_rule`, `validation`, `compliance`, `assessment`, `applicability`, `nutrition`, `ingredient`, `evidence`, `report`, `scan`); `compliance/` (`engine`, `aggregation`, `applicability`, `dates`, `registry`, `repository`, `resolver`, `rule_loader`, `selection`, validators); `seeds/legal_rules.py`; migrations `0001_foundation`, `0002_models`, `0003_legal_rule_traceability`.
+
+**Mobile:** `App.tsx`, `navigation/`, screens listed in section 19, `i18n/locales/` (7 files), `data/mockInspections.ts`, `data/mockStatistics.ts`, `theme/index.ts`, `types/inspection.ts`.
+
+**Legal:** `legal-rules/2011/rules.json`, `legal-rules/README.md`, `amendments/README.md`, `sources/README.md`.
+
+**Docs:** this file; `docs/compliance-engine.md`, `compliance-validators.md`, `compliance-testing.md`, `legal-rule-storage.md`, `legal-rule-applicability.md`; `backend/README.md`; root `README.md`.
+
+---
+
+# 34. How to continue
+
+When implementation is requested, the next major build is **Phase 11: Label-to-Product Verification Engine** as a new module beside `compliance/`. Camera/OCR/extraction remain unimplemented and are still required for a real consumer loop.
+
+Until then, this file is the product-direction source; the repository is the implementation source.

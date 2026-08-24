@@ -4,6 +4,8 @@
 
 **Scan. Verify. Understand.**
 
+A **consumer-first** AI-assisted platform that reads packaged-product labels, evaluates applicable Legal Metrology requirements, and (as the product direction) verifies label claims against **current** observable or measured evidence.
+
 | | |
 | --- | --- |
 | Hackathon | Smart India Hackathon **2026** |
@@ -12,63 +14,124 @@
 | Organization | Ministry of Consumer Affairs, Food & Public Distribution |
 | Department | Department of Consumer Affairs |
 
-LabelGuard AI is an **AI-assisted decision-support and inspection tool**. It is not a Legal Metrology officer and does **not** make a final legal determination.
+LabelGuard is **not** a food scanner, calorie tracker, or chatbot. It is **not** a government authority.
 
 ---
 
 ## Problem
 
-Packaged commodities sold in India must carry required declarations under the Legal Metrology (Packaged Commodities) Rules, 2011 — including identity of manufacturer/packer/importer, net quantity, retail sale price (MRP), applicable date information, and consumer-care contact.
+Packaged commodities in India must carry required declarations under the Legal Metrology (Packaged Commodities) Rules, 2011 — manufacturer/packer/importer identity, net quantity, MRP, applicable dates, consumer-care contact, and others.
 
-Manual inspection is slow: an officer or consumer must read small print, compare it with the applicable rule version, and record evidence. Scale is hard — many SKUs, many languages, poor lighting, and rules that change over time. Missing a declaration and failing to *read* a declaration are easy to confuse, which can produce false conclusions.
+For a **consumer**, the label is hard to use in real life: small print, mixed languages, and no easy way to check whether what the pack *says* matches what you can see or measure *now* (for example a declared 500 g vs a scale reading). For scale, the same checks are slow to do by hand and easy to get wrong — especially mixing up “the camera could not read it” with “it is not on the pack.”
 
 ---
 
 ## Solution
 
-LabelGuard AI is an **AI-assisted Legal Metrology inspection platform** for Indian packaged commodities.
+LabelGuard AI is a **consumer-first AI-assisted product label intelligence and Legal Metrology verification platform**.
 
-**Primary USP:** Legal Metrology compliance intelligence — not nutrition scanning, not a chatbot, not a generic product scanner.
+**Primary USP:** Legal Metrology **plus** label-to-product verification (declared claim vs current observation). Nutrition and ingredient intelligence are **secondary** consumer features.
 
-**Secondary value (planned):** nutrition and ingredient information to help consumers understand a label.
+The product should help a consumer:
 
-Intended path: capture a label, extract structured declarations, run a **deterministic rule engine**, and produce an automated assessment with evidence references and a recommendation for manual verification when needed.
+1. Scan a packaged product  
+2. Read and understand the label  
+3. Extract important declarations  
+4. Check applicable Legal Metrology requirements  
+5. Compare label claims with a **current** observation or measurement  
+6. Surface potential discrepancies with evidence and confidence  
+7. Explain what was detected — without saying “the product is illegal”  
+8. Compare nutrition across several scanned products (**planned**)  
+9. Save evidence and reports (**planned**)
+
+Enforcement-style workflows can still sit on the same architecture. They are **not** the centre of the current product story.
 
 ---
 
 ## Primary USP
 
 ```text
-Product label
+SCAN PRODUCT
       ↓
-Image processing          (planned)
+CAPTURE IMAGE                 (planned)
       ↓
-OCR                       (planned)
+IMAGE QUALITY / PROCESSING    (planned)
       ↓
-Information extraction    (planned)
+OCR                           (planned)
       ↓
-Legal Metrology rule engine   ← implemented
+DECLARATION EXTRACTION        (planned)
       ↓
-Compliance assessment         ← implemented
+LEGAL METROLOGY CHECK         ← engine implemented
       ↓
-Evidence                      (schema + mock UI)
+LABEL-TO-PRODUCT VERIFICATION (planned — next product direction)
       ↓
-Report                        (schema only)
+RESULT AGGREGATION            ← engine implemented for legal checks
+      ↓
+EVIDENCE / EXPLANATION        (partial)
+      ↓
+NUTRITION / INGREDIENTS       (planned)
+      ↓
+REPORT / HISTORY              (partial)
 ```
 
-The Legal Metrology engine is **rule-based and deterministic**. An LLM is **not** the final legal authority. AI (when added) may detect, read, extract, and explain. The engine decides `COMPLIANT` / `POTENTIAL_NON_COMPLIANCE` / `MANUAL_REVIEW` from structured declarations and stored rules.
+Legal Metrology is **deterministic and rule-based**. An LLM is **never** the final legal authority:
+
+```text
+OCR / AI  →  structured information  →  deterministic rule engine  →  assessment
+```
+
+---
+
+## Label-to-product verification (product direction)
+
+**Status: not implemented.** This is the next major consumer capability after the existing legal core. It is **not** a comparison with an older product version or a historical database.
+
+The **label** is the expected claim. The **current** product image, user measurement, or other observation is what is checked.
+
+```text
+LABEL / TEXT  →  OCR + extraction  →  EXPECTED CLAIMS
+CURRENT PRODUCT / MEASUREMENT      →  OBSERVATION
+        ↓
+EXPECTED + OBSERVED  →  VERIFICATION  →  MATCH / POTENTIAL MISMATCH / UNVERIFIED
+```
+
+**Example (quantity):** label `500 g`, consumer scale `472 g` → “Potential quantity discrepancy detected.” Not “fraud,” “the company cheated,” or “illegal.” Any legal assessment must still use stored rules and **permissible tolerances** when those are encoded from official sources. The camera must **not** be described as a weighing scale. Physical mass comes from a user-provided (or otherwise reliable) measurement. Physical dimensions need calibration.
+
+Possible check types (architecture, not current code): quantity, count, visible text/value (e.g. MRP), product identity, other observable consistency checks.
+
+A result should eventually show **declared value**, **observed value**, **difference**, **applicable rule**, **confidence**, and **verification status**.
 
 ---
 
 ## Target users
 
-### Enforcement officials
+### Consumers (primary)
 
-Inspect packaged commodities, check applicable Legal Metrology requirements for the inspection date and product category, and record potential issues with rule references. Evidence images and PDF reports are **planned**; the engine already returns explainable assessment items.
+Scan a pack, understand the label, see Legal Metrology checks in plain language, optionally verify a claim against a current measurement, keep evidence, and later compare nutrition. The live app today is a **mock** Expo UI (no camera, no API).
 
-### Consumers
+### Enforcement officials (supported by architecture, not the UI centre)
 
-Understand what a label is declaring and, later, view nutrition and ingredient information. Those intelligence modules are **not implemented**. The mobile app currently shows a mock inspection experience.
+The same deterministic engine can serve inspection. The `users` table still has an `INSPECTOR` role default; authentication is **not** implemented. The README and product experience are **consumer-first**, not an inspector dashboard.
+
+---
+
+## Consumer experience (intended)
+
+```text
+HOME → SCAN → PRODUCT OVERVIEW → LEGAL / LABEL CHECK
+  → LABEL-TO-PRODUCT VERIFICATION → WHAT WAS DETECTED?
+  → NUTRITION → INGREDIENTS → COMPARE → EVIDENCE → REPORT / SAVE
+```
+
+**Current mobile screens:** Home, Scan (placeholder), Processing (simulated), Evidence (mock), History (mock), Profile, Language, Coming Soon. There is no product-overview, verification, compare, or report flow yet.
+
+Conceptual result (not the current engine JSON):
+
+- Legal label status: Compliant / Potential Non-Compliance / Manual Review / Could Not Verify  
+- Label-to-product status: Potential Mismatch (**planned**; not an engine enum today)  
+- Declared vs observed, rule reference, recommendation: manual verification  
+
+The **implemented** engine statuses remain: `COMPLIANT`, `POTENTIAL_NON_COMPLIANCE`, `MANUAL_REVIEW`. Do not treat “Potential Mismatch” or “Could Not Verify” as live API values.
 
 ---
 
@@ -77,125 +140,108 @@ Understand what a label is declaring and, later, view nutrition and ingredient i
 | Feature | Purpose | Status |
 | --- | --- | --- |
 | FastAPI health API | Process liveness | **Implemented** |
-| PostgreSQL schema | Persist users, products, inspections, rules, findings | **Implemented** (schema; no CRUD API yet) |
-| Legal Metrology rule engine | Deterministic assessment of structured declarations | **Implemented** |
-| Rule versioning & applicability | Select the in-force, category-matching rule version | **Implemented** |
-| Deterministic validators | MRP, net quantity, dates, required declarations, consumer care | **Implemented** |
-| Confidence on declarations / validator results | Per-field and per-check scores; no overall “% legal” score | **Implemented** in engine contracts |
-| Mobile UI (Expo) | Home, scan placeholder, processing, evidence, history, profile | **Implemented** (mock data) |
-| UI multilingual support | en, hi, mr, bn, ta, gu, te | **Implemented** (UI only) |
-| Inspection history | Store and list inspections | **Partial** (DB table + mock History screen; no API) |
-| Evidence | Bounding boxes, rule refs, highlighted images | **Partial** (schema + mock screen; no image generator) |
-| Image quality analysis | Blur / glare / recapture | **Not implemented** |
-| OpenCV preprocessing | Deskew, enhance | **Not implemented** |
-| PaddleOCR | Read label text | **Not implemented** |
-| Declaration extraction | OCR text → structured fields | **Not implemented** (contract only) |
-| Nutrition intelligence | Parse nutrition table | **Not implemented** (schema + Coming Soon UI) |
-| Ingredient intelligence | Parse ingredient list | **Not implemented** (schema + Coming Soon UI) |
-| PDF reports | Inspection PDF | **Not implemented** (schema only) |
-| Camera / live scan | Capture from phone | **Not implemented** |
-| Mobile ↔ API | Real inspections from the app | **Not implemented** |
-| Authentication | Login, roles | **Not implemented** |
-| Barcode / QR | Product identity | **Not implemented** |
-| E-commerce analysis | URL → compliance | **Not implemented** |
+| PostgreSQL schema | Persist products, inspections, rules, findings | **Implemented** (schema; no CRUD API) |
+| Legal Metrology rule engine | Deterministic check of structured declarations | **Implemented** |
+| Rule versioning & applicability | In-force version for date + category | **Implemented** |
+| Deterministic validators | MRP, net quantity, dates, required fields, consumer care | **Implemented** |
+| Per-check confidence | Declaration / validator scores; no overall “% legal” | **Implemented** in contracts |
+| Consumer mobile UI | Home, scan placeholder, history, language | **Implemented** (mock data) |
+| UI languages | en, hi, mr, bn, ta, gu, te | **Implemented** (UI only) |
+| Evidence | Photos, boxes, rule refs, measurements | **Partial** (schema + mock screen) |
+| Inspection history | Save / list scans | **Partial** (table + mock list) |
+| Label-to-product verification | Declared vs current observation | **Not implemented** |
+| Multi-product nutrition compare | Rank by user-selected nutrients | **Not implemented** |
+| Image quality / OpenCV | Recapture, preprocess | **Not implemented** |
+| PaddleOCR | Read the label | **Not implemented** |
+| Declaration extraction | OCR → structured fields | **Not implemented** |
+| Nutrition / ingredient engines | Parse panel and ingredients | **Not implemented** (schema + Coming Soon) |
+| Camera / scan API | Live capture → backend | **Not implemented** |
+| PDF reports | Consumer-facing report | **Not implemented** |
+| Auth, barcode/QR, e-commerce | — | **Not implemented** |
 
 ---
 
 ## Architecture
 
-**Target architecture** (not all boxes exist as running code):
+**Target** (not all boxes exist):
 
 ```text
-                    MOBILE APP
-               React Native + Expo
-                         │
-                         ▼
-                    FASTAPI API
-                         │
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-       OpenCV        PaddleOCR      PostgreSQL
-          │              │
-          └───────┬──────┘
-                  ▼
-          INFORMATION EXTRACTION
-                  │
-          ┌───────┴────────┐
-          ▼                ▼
-   LEGAL METROLOGY     NUTRITION
-       ENGINE            ENGINE
-          │                │
-          └───────┬────────┘
-                  ▼
-             RESULT ENGINE
-                  │
-          ┌───────┼────────┐
-          ▼       ▼        ▼
-        Legal  Nutrition Evidence
-          │
-          ▼
-       PDF REPORT
+                 MOBILE APP
+            React Native + Expo
+                      │
+                      ▼
+                FASTAPI BACKEND
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+    OpenCV        PaddleOCR       PostgreSQL
+       │              │
+       └───────┬──────┘
+               ▼
+       INFORMATION EXTRACTION
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+LEGAL METROLOGY    NUTRITION ENGINE
+    ENGINE                │
+       │                  │
+       └────────┬─────────┘
+                ▼
+      LABEL-TO-PRODUCT
+       VERIFICATION
+                │
+                ▼
+        RESULT AGGREGATOR
+                │
+      ┌─────────┼─────────┐
+      ▼         ▼         ▼
+   Compliance Verification Evidence
+      │
+      ▼
+    Reports
 ```
 
-**Current repository state:** Expo mobile (mock) and FastAPI (`/health` only) plus a PostgreSQL schema. The Legal Metrology engine runs **in-process** (callable from Python tests and future services). OpenCV, PaddleOCR, extraction, nutrition engine, and PDF generation are **not** in this repo.
+**In the repo today:** Expo mock app; FastAPI `/health` only; PostgreSQL schema; in-process Legal Metrology engine. No OpenCV, PaddleOCR, extraction service, verification engine, nutrition engine, or PDF.
 
 ---
 
-## Legal Metrology compliance
+## Legal Metrology
 
-The engine receives inspection date, product category, product context, and structured declarations. It resolves **which rule versions apply**, runs registered validators, and aggregates an **automated assessment**.
+Primary USP. The implemented engine takes inspection date, category, context, and structured declarations; selects applicable **verified** rule versions; runs validators; aggregates an automated assessment.
 
-| Status | Meaning |
+Prototype declarations in seed data include manufacturer identity, generic name, net quantity, date (where applicable), MRP, size-when-relevant, consumer-care contact. Country of origin is a **draft / unverified** row and cannot create an authoritative violation.
+
+| Implemented status | Meaning |
 | --- | --- |
-| `COMPLIANT` | Applicable verified checks passed; not a legal certificate |
-| `POTENTIAL_NON_COMPLIANCE` | Strong evidence that a requirement appears unsatisfied |
-| `MANUAL_REVIEW` | Uncertain, unverified rule, missing validator, or no applicable rules |
+| `COMPLIANT` | Applicable verified checks passed — not a legal certificate |
+| `POTENTIAL_NON_COMPLIANCE` | Strong evidence a requirement appears unsatisfied |
+| `MANUAL_REVIEW` | Uncertain, unverified rule, missing validator, or nothing applicable |
 
-**Missing vs unread**
+Product language may also use **Potential Mismatch** (label vs observation) and **Could Not Verify** (insufficient evidence). Those are **not** engine enums yet.
 
-- *Information is missing* — only when evidence of absence is reliable (for example a readable label and a confident “not on the pack” signal).
-- *Information could not be reliably detected* — e.g. OCR `NOT_DETECTED` at low confidence → **`MANUAL_REVIEW`**, not a violation.
+Always distinguish:
 
-`NOT_DETECTED` is **not** the same as legally missing. Prototype rules come from official 2011 India Code text (selected clauses). Country-of-origin is stored as an **unverified draft** and cannot create an authoritative violation.
+- **Missing** — reliable evidence of absence  
+- **Could not detect** — e.g. blurry OCR (`NOT_DETECTED` + low confidence → review, not a violation)  
+- **Potential mismatch** — declared vs observed (**planned**)
 
-Official sources: [Department of Consumer Affairs — Legal Metrology](https://consumeraffairs.gov.in/pages/legal-metrology-act).
-
----
-
-## AI / computer vision
-
-**Not implemented in this repository.** There is no OpenCV or PaddleOCR dependency and no image pipeline.
-
-What exists today:
-
-- Contract `OCRResult`: `text`, `confidence` in `[0, 1]`, pixel `bbox` `[x1, y1, x2, y2]`
-- Contract `ImageQualityResult`: `usable`, optional `reason`
-- Validators consume **already structured** `Declaration` objects (including optional bbox and confidence)
+Official source: [Department of Consumer Affairs — Legal Metrology](https://consumeraffairs.gov.in/pages/legal-metrology-act).
 
 ---
 
-## Nutrition & ingredient intelligence
+## Nutrition comparison (planned)
 
-These are **secondary** features. They are not the product’s primary purpose.
+**Not implemented.** A future consumer feature: scan several products and compare calories, sugar, added sugar (if present), protein, carbs, fat, saturated fat, trans fat, fibre, sodium. The user picks priorities (lower sugar, higher protein, …). The system ranks **by those parameters** and explains why.
 
-- Schemas and database tables exist so legal analysis can proceed when nutrition/ingredients are absent.
-- No nutrition or ingredient engine is implemented.
-- Mobile Home tiles open a Coming Soon screen.
-- The project does not diagnose medical conditions or call a product “dangerous” from ingredient text.
+It must **not** say “this product is healthiest.” Example: “Product B ranks highest based on your selected parameters” with checks and caveats. No medical claims.
 
 ---
 
-## Evidence
+## Evidence and reports
 
-Intended: original image, annotated crop, bounding box, detected text, confidence, rule reference, recommended action.
+**Intended (consumer-facing):** product photo, label photo, highlighted region, measurement evidence, optional purchase proof, notes, timestamp, declared vs observed, rule reference, confidence. Not a fake government grievance portal; any later guidance should point to **official** channels.
 
-**Today:** validators attach declaration bbox/source/confidence to each result; the `evidence` table and `EvidenceItem` schema exist; the mobile Evidence screen is **mock**. Highlighted-image generation is **not** implemented.
-
----
-
-## Reports
-
-PDF generation is **not implemented**. A `reports` table and `ReportResult` contract exist so a future generator can mark `PENDING` / `READY` / `FAILED` without discarding the inspection.
+**Today:** validators keep bbox/source/confidence; `evidence` / `reports` tables and schemas exist; mobile Evidence is mock. No image generator, no PDF, no measurement-evidence capture.
 
 ---
 
@@ -203,15 +249,12 @@ PDF generation is **not implemented**. A `reports` table and `ReportResult` cont
 
 | Layer | Technology | In this repo |
 | --- | --- | --- |
-| Mobile | React Native, Expo SDK 54, TypeScript | Yes |
-| API | Python 3.13+, FastAPI, Uvicorn, Pydantic | Yes |
-| Data | PostgreSQL, SQLAlchemy 2, Alembic, psycopg | Yes (schema; DB optional for `/health`) |
-| Legal core | Pure Python + Pydantic (no LLM) | Yes |
-| Tests | pytest, pytest-cov, httpx | Yes (`backend/tests`) |
-| OpenCV | — | **Planned** (not installed) |
-| PaddleOCR | — | **Planned** (not installed) |
-| ReportLab / PDF | — | **Planned** (not installed) |
-| NativeWind | — | Not used (StyleSheet + theme tokens) |
+| Mobile | React Native, Expo 54, TypeScript | Yes |
+| API | Python 3.13+, FastAPI, Pydantic | Yes |
+| Data | PostgreSQL, SQLAlchemy 2, Alembic | Yes (schema; optional for `/health`) |
+| Legal core | Python (no LLM) | Yes |
+| Tests | pytest, pytest-cov, httpx | Yes |
+| OpenCV / PaddleOCR / ReportLab / Ollama | — | **Planned** (not installed) |
 
 ---
 
@@ -219,22 +262,16 @@ PDF generation is **not implemented**. A `reports` table and `ReportResult` cont
 
 ```text
 labelguard/
-├── backend/
-│   ├── app/                 # FastAPI, schemas, database, compliance engine
-│   ├── migrations/          # Alembic (head: 0003_legal_rule_traceability)
-│   ├── seeds/               # legal rule seed
-│   ├── tests/               # pytest (legal core + API health)
-│   ├── requirements.txt
-│   └── .env.example
-├── mobile/                  # Expo 54 app (mock inspections)
+├── backend/                 # FastAPI, schemas, DB, compliance engine, tests
+├── mobile/                  # Expo 54 mock consumer UI
 ├── legal-rules/
-│   └── 2011/rules.json      # prototype 2011 clauses
+│   └── 2011/rules.json
 ├── docs/
-│   └── PROJECT_CONTEXT.md   # full technical context
+│   └── PROJECT_CONTEXT.md
 └── README.md
 ```
 
-There is no repository-root `tests/` directory; backend tests live under `backend/tests/`.
+Tests live in `backend/tests/`, not a root `tests/` folder.
 
 ---
 
@@ -251,14 +288,15 @@ copy .env.example .env
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-`/health` does **not** require PostgreSQL. Copy `backend/.env.example` to `backend/.env` and edit locally. Never commit `.env`.
-
-Optional database (migrations and seed):
+PostgreSQL is **not** required for `/health`. Never commit `.env`.
 
 ```powershell
 alembic upgrade head
 python -m seeds.legal_rules
+pytest
 ```
+
+Persistence tests skip if Postgres is down.
 
 ### Mobile
 
@@ -268,159 +306,104 @@ npm install
 npx expo start --lan
 ```
 
-Use **Expo Go matching SDK 54**. Phone and PC must be on the same Wi-Fi.
-
-### Tests
-
-```powershell
-cd backend
-.\.venv\Scripts\Activate.ps1
-pytest
-```
-
-Persistence tests skip if PostgreSQL is not running.
+Expo Go **SDK 54**, same Wi-Fi as the PC.
 
 ---
 
 ## API
 
-Only these routes exist:
-
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/health` | Liveness (`{"status":"ok"}`) |
+| `GET` | `/health` | Liveness `{"status":"ok"}` |
 | `GET` | `/api/v1/health` | Same, versioned |
 
-OpenAPI (when the server is running): http://127.0.0.1:8000/docs
-
-There is no scan, inspection, or auth endpoint yet. `ScanResponse` is a **future** contract, not a live route.
-
-Errors use `{ "error": { "code", "message", "details" } }`.
+No scan, verification, or nutrition endpoints. Docs: http://127.0.0.1:8000/docs
 
 ---
 
 ## Testing
 
-Backend tests live in `backend/tests/` (health, errors, logging, schemas, models, rule storage, applicability, validators, engine, pipeline/edge cases). They are designed to run **without OCR** and **without PostgreSQL** except for skipped persistence tests.
-
-This README does not claim a current pass/fail count. Run `pytest` locally to verify.
-
-The mobile app has no automated test suite in-repo.
+`backend/tests/` covers health, schemas, rule storage, applicability, validators, engine, and pipeline edge cases **without OCR**. This README does not claim a pass count — run `pytest`. No mobile test suite.
 
 ---
 
 ## Security
 
-| Topic | Status |
-| --- | --- |
-| `.env` gitignored; `.env.example` committed | Yes |
-| `DATABASE_URL` treated as a secret; log redaction for tokens/passwords | Yes |
-| Pydantic validation on declarations (confidence 0..1; no `MISSING` status) | Yes |
-| Stack traces not returned to API clients | Yes |
-| CORS | Off unless `CORS_ORIGINS` is set |
-| Authentication / authorization | **Not implemented** |
-| Upload / file validation | **Not implemented** (no upload API) |
+`.env` gitignored; `DATABASE_URL` treated as a secret; log redaction; Pydantic validation; no stack traces to clients. CORS off unless `CORS_ORIGINS` is set. **No** auth, **no** upload/file validation (no upload API).
 
 ---
 
-## Development roadmap
+## Roadmap
 
-This is the **product** sequence. Backend work already delivered a deterministic rule engine (see `docs/PROJECT_CONTEXT.md` for the internal backend phase list).
+**Already in the repo:** foundation, FastAPI, PostgreSQL schema, deterministic Legal Metrology engine (versioning, validators, assessment), mock consumer mobile UI.
 
-| Phase | Scope | Status in this repo |
-| --- | --- | --- |
-| 1 — Foundation | Repo, mobile shell, API process | **Done** (health API + Expo mock UI) |
-| 2 — Backend | FastAPI, errors, logging, contracts | **Done** |
-| 3 — PostgreSQL | Schema + Alembic | **Done** (optional at runtime) |
-| 4 — Legal rule engine | Storage, versioning, validators, assessment | **Done** |
-| 5 — Image processing | OpenCV quality / preprocess | **Not started** |
-| 6 — OCR | PaddleOCR | **Not started** |
-| 7 — Declaration extraction | OCR → structured fields | **Not started** (schema only) |
-| 8 — OCR → compliance integration | Scan API wiring | **Not started** |
-| 9 — Evidence | Highlighted images | **Partial** (schema + mock UI) |
-| 10 — Nutrition | Nutrition engine | **Not started** |
-| 11 — Ingredients | Ingredient engine | **Not started** |
-| 12 — Mobile integration | Live API + camera | **Not started** |
-| 13 — Inspection history | List/get inspections API | **Partial** (table + mock list) |
-| 14 — PDF reports | Generate PDFs | **Not started** |
-| 15 — Advanced features | Barcode, fingerprint, e-commerce, etc. | **Not started** |
+**Next (not implemented):**
+
+1. Label-to-product verification (declared vs current observation/measurement)  
+2. Evidence-backed consumer verification (photos, measurements, notes)  
+3. Multi-product nutrition comparison  
+4. Consumer history and reports  
+5. Then: camera + OCR integration, barcode/QR, more label languages, calibrated measurement, e-commerce analysis, offline support  
+
+Do not treat this list as shipped software.
 
 ---
 
 ## Team development
 
 ```text
-main
-  → feature branch
-  → development + tests
-  → pull request
-  → review
-  → merge
+main → feature branch → tests → pull request → review → merge
 ```
 
-Example branches: `feature/ocr`, `feature/nutrition`, `feature/evidence`.
-
-Do **not** develop directly on `main`. Teammate modules should integrate through the Pydantic contracts in `backend/app/schemas/` and must not rewrite the legal engine.
+Examples: `feature/ocr`, `feature/nutrition`, `feature/evidence`. Do not develop on `main`. Integrate through `backend/app/schemas/`; do not rewrite the legal engine.
 
 ---
 
 ## Engineering principles
 
-- The rule engine is deterministic.
-- An LLM is not the legal authority.
-- OCR uncertainty ≠ missing declaration.
-- Preserve OCR bounding boxes and confidence scores.
-- Do not invent extracted values.
-- Do not claim exact physical millimetres without calibration.
-- Prefer manual review when confidence is low.
-- Keep legal rules separate from application logic (`legal-rules/` + `legal_rules` table).
-- Keep modules loosely coupled (OCR ≠ compliance ≠ nutrition).
-- Do not hard-code secrets.
-- Do not silently modify unrelated files.
+- Rule engine is deterministic; LLM is not the legal authority.  
+- OCR uncertainty ≠ missing declaration ≠ potential mismatch.  
+- Preserve bounding boxes and confidence; never invent extracted values.  
+- No exact millimetres or mass from an uncalibrated camera.  
+- Prefer manual review when confidence is low.  
+- Keep legal rules separate from app logic; keep modules loosely coupled.  
+- No hardcoded secrets; no silent unrelated file changes.  
+- No medical claims; no “fraud” language from automated output.
 
 ---
 
 ## Limitations
 
-- No camera, no OCR, no scan API — the engine is tested with **manual declaration fixtures**.
-- Mobile inspections are **mock**; they are not loaded from FastAPI.
-- Seed rules are a **small prototype** of 2011 clauses, not the full Rules plus every amendment.
-- Country-of-origin is an unverified draft row.
-- Rule 6(1)(f) (size) has no validator yet.
-- No authentication, PDF, nutrition engine, or ingredient engine.
-- No overall “percent compliant” score (`assessment_confidence` is unused / null by design).
+- No camera, OCR, scan API, or verification engine — legal tests use **manual declaration fixtures**.  
+- Mobile data is **mock**.  
+- Seed rules are a **prototype** 2011 set, not every amendment.  
+- Size rule has no validator; origin rule is unverified draft.  
+- No nutrition compare, PDF, or authentication.  
+- Engine has no overall legal-confidence percentage (`assessment_confidence` stays unset).
 
 ---
 
 ## Future scope
 
-Planned or possible later (not in the current codebase):
-
-- Calibrated print-size measurement
-- Barcode / QR product identity
-- More Indian languages for **label** understanding (UI already has seven locales)
-- E-commerce URL analysis
-- Offline mode
-- Product fingerprinting (“previously inspected”)
-- Inspector dashboards
-- Optional local LLM for explanation only (never for the legal verdict)
-- Advanced computer vision (glare, blur, recapture)
+Calibrated measurement, barcode/QR, more Indian languages for **label** OCR, e-commerce analysis, offline mode, product fingerprinting, dashboards, optional local LLM **for explanation only**, advanced vision. All **future**.
 
 ---
 
 ## SIH relevance
 
-Problem Statement **26034** asks for a system that checks packaged-commodity compliance under the 2011 Rules by scanning products, images, and labels.
+Problem **26034** asks for a system that checks packaged-commodity compliance under the 2011 Rules by scanning products, images, and labels.
 
-This repository already provides the **deterministic Legal Metrology core** (versioned rules, applicability, validators, assessment statuses) plus a **mobile inspection UI prototype** and a **PostgreSQL schema**. Image capture, OCR, and end-to-end scan integration remain the next product phases so the official workflow can run from a photograph to an explainable automated assessment.
+LabelGuard AI is a **consumer-first** AI-assisted platform that reads packaged-product labels, evaluates applicable Legal Metrology requirements, is designed to verify label claims against **current** observable or measurement evidence, highlights potential discrepancies, and will provide understandable nutrition and ingredient intelligence.
+
+This repository already has the **deterministic legal core** and a **consumer UI prototype**. Capture, OCR, label-to-product verification, and comparison are the next product steps.
 
 ---
 
 ## Disclaimer
 
-LabelGuard AI is an AI-assisted decision-support and inspection tool. It is not a replacement for an authorized Legal Metrology officer and does not itself make a final legal determination.
+LabelGuard AI is an AI-assisted decision-support and product-label verification tool. It is not a replacement for an authorized Legal Metrology officer and does not itself make a final legal determination.
 
-AI and engine outputs should be treated as **automated assessments** that require appropriate human verification.
+Findings are **automated assessments**. They require appropriate human verification. LabelGuard is not a government complaints portal.
 
 ---
 
