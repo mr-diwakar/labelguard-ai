@@ -133,7 +133,7 @@ export function HomeScreen({ navigation }: TabScreenProps<'Home'>) {
                 <InspectionCard
                   key={inspection.id}
                   inspection={inspection}
-                  onPress={() => navigation.navigate('Evidence', { inspectionId: inspection.id })}
+                  onPress={() => navigation.navigate('Result', { inspectionId: inspection.id })}
                 />
               ))}
             </View>
