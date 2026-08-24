@@ -4,13 +4,16 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { BottomNavigation } from '../components/BottomNavigation';
 import { ComingSoonScreen } from '../screens/ComingSoonScreen';
+import { EvidenceDetailScreen } from '../screens/EvidenceDetailScreen';
 import { EvidenceScreen } from '../screens/EvidenceScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LanguageScreen } from '../screens/LanguageScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { ResultScreen } from '../screens/ResultScreen';
 import { ScanScreen } from '../screens/ScanScreen';
+import { VerificationScreen } from '../screens/VerificationScreen';
 import { colors } from '../theme';
 import { MainTabParamList, RootStackParamList } from './types';
 
@@ -50,7 +53,10 @@ export function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="Processing" component={ProcessingScreen} />
+        <Stack.Screen name="Result" component={ResultScreen} />
+        <Stack.Screen name="Verification" component={VerificationScreen} />
         <Stack.Screen name="Evidence" component={EvidenceScreen} />
+        <Stack.Screen name="EvidenceDetail" component={EvidenceDetailScreen} />
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="ComingSoon" component={ComingSoonScreen} />
       </Stack.Navigator>

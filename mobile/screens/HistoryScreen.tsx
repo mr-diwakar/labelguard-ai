@@ -84,7 +84,7 @@ export function HistoryScreen({ navigation }: TabScreenProps<'History'>) {
         renderItem={({ item }) => (
           <InspectionCard
             inspection={item}
-            onPress={() => navigation.navigate('Evidence', { inspectionId: item.id })}
+            onPress={() => navigation.navigate('Result', { inspectionId: item.id })}
           />
         )}
         ListEmptyComponent={

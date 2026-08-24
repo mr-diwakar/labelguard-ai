@@ -84,9 +84,9 @@ export function ProcessingScreen({ navigation, route }: ProcessingScreenProps) {
           <Text style={styles.completeTitle}>{t('processing.completeTitle')}</Text>
           <Text style={styles.completeDescription}>{t('processing.completeDescription')}</Text>
           <PrimaryButton
-            label={t('processing.viewEvidence')}
+            label={t('processing.viewResult')}
             icon="document-text-outline"
-            onPress={() => navigation.replace('Evidence', { inspectionId })}
+            onPress={() => navigation.replace('Result', { inspectionId })}
             fullWidth
             style={styles.completeButton}
           />

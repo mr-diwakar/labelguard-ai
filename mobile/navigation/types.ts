@@ -2,6 +2,8 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { EvidenceItem } from '../types/inspection';
+
 export type MainTabParamList = {
   Home: undefined;
   Scan: undefined;
@@ -12,7 +14,15 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   Processing: { inspectionId: string };
+  /** Consumer-first result overview shown after processing. */
+  Result: { inspectionId: string };
+  /** "What was verified?" — label-to-product check detail. */
+  Verification: { inspectionId: string };
+  /** Evidence artefacts list and capture experience. */
   Evidence: { inspectionId: string };
+  /** Single evidence artefact. The item travels in the param so locally-added
+   *  evidence (not present in the mock arrays) renders without a lookup. */
+  EvidenceDetail: { item: EvidenceItem };
   Language: undefined;
   ComingSoon: { title: string; description: string };
 };
@@ -24,7 +34,10 @@ export type TabScreenProps<T extends keyof MainTabParamList> = CompositeScreenPr
 >;
 
 export type ProcessingScreenProps = NativeStackScreenProps<RootStackParamList, 'Processing'>;
+export type ResultScreenProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
+export type VerificationScreenProps = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 export type EvidenceScreenProps = NativeStackScreenProps<RootStackParamList, 'Evidence'>;
+export type EvidenceDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'EvidenceDetail'>;
 export type LanguageScreenProps = NativeStackScreenProps<RootStackParamList, 'Language'>;
 export type ComingSoonScreenProps = NativeStackScreenProps<RootStackParamList, 'ComingSoon'>;
 
