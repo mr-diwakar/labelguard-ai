@@ -1,0 +1,185 @@
+{
+  "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+  "source_notification": "G.S.R. 202(E) dated 7 March 2011",
+  "source_url_primary": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+  "source_url_text": "https://www.indiacode.nic.in/ViewFileUploaded?file=9_the_legal_metrology_%28package_commodities%29_rules%2C_2011.pdf&path=AC_CH_60_1205_00002_00002_1560405527490%2Frulesindividualfile%2F",
+  "consolidated_publication": "https://consumeraffairs.gov.in/public/upload/admin/cmsfiles/whatsnews/Book_on_Legal_Metrology_Packaged_Commodities_Rules%2C2011_with_all_amendments_whatsnews.pdf",
+  "notes": "Clauses below are taken from the official India Code text of the 2011 Rules. Internal rule_code values are LabelGuard identifiers, not government numbers. Later amendments are not encoded here until verified against the official consolidated publication.",
+  "rules": [
+    {
+      "rule_code": "LM-PC-MFR-001",
+      "rule_name": "Manufacturer, packer or importer identity",
+      "description": "The package must declare the name and address of the manufacturer, or of the manufacturer and packer where they are different, and of the importer on an imported package.",
+      "requirement": "Declare name and address of manufacturer; if the manufacturer is not the packer, declare both; if the package is imported, declare the importer.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "REQUIRED_DECLARATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(a)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["COSMETIC", "HOUSEHOLD_PRODUCT", "ELECTRONIC_PRODUCT", "IMPORTED_PRODUCT", "OTHER"],
+        "excludes_categories": ["PACKAGED_FOOD"],
+        "notes": "Explanation III to Rule 6(1)(a) states that packages containing food articles follow the Prevention of Food Adulteration Act, 1954 instead of this sub-rule."
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-NAME-001",
+      "rule_name": "Common or generic name of the commodity",
+      "description": "The package must declare the common or generic name of the commodity, and for multi-product packages the name and number or quantity of each product.",
+      "requirement": "Declare the common or generic name of the commodity contained in the package. If more than one product is packed, declare the name and number or quantity of each.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "REQUIRED_DECLARATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(b)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["*"]
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-NETQ-001",
+      "rule_name": "Net quantity declaration",
+      "description": "The package must declare net quantity in a standard unit of weight or measure, or the number of the commodity where it is packed or sold by number.",
+      "requirement": "Declare net quantity in the standard unit of weight or measure, or declare the number when the commodity is packed or sold by number.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "NET_QUANTITY_VALIDATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(c)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["*"]
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-DATE-001",
+      "rule_name": "Month and year of manufacture, packing or import",
+      "description": "The package must mention the month and year in which the commodity is manufactured, pre-packed or imported, subject to the provisos in Rule 6(1)(d).",
+      "requirement": "Declare month and year of manufacture, pre-packing or import.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "DATE_VALIDATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(d)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["HOUSEHOLD_PRODUCT", "ELECTRONIC_PRODUCT", "IMPORTED_PRODUCT", "OTHER"],
+        "excludes_categories": ["PACKAGED_FOOD", "COSMETIC"],
+        "notes": "Rule 6(1)(d) provisos: food articles follow the Prevention of Food Adulteration Act, 1954; cosmetics follow the Drugs and Cosmetics Rules, 1945; certified seeds follow the Seeds Act, 1966."
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-MRP-001",
+      "rule_name": "Retail sale price",
+      "description": "The package must declare the retail sale price. Rule 2(m) defines retail sale price as the maximum price at which the packaged commodity may be sold to the consumer.",
+      "requirement": "Declare the retail sale price of the package.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "MRP_VALIDATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(e)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["*"],
+        "notes": "Proviso to Rule 6(1)(e): alcoholic beverages may follow State Excise law where that law provides for the declaration. Rule 6(1) proviso (C) lists limited packages that need not declare retail sale price, including bidis and specified LPG cylinders."
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-SIZE-001",
+      "rule_name": "Dimensions where size is relevant",
+      "description": "Where the sizes of the commodity are relevant, the package must mention those dimensions, and different dimensions for different pieces if they differ.",
+      "requirement": "If size is relevant, declare the dimensions of the commodity, and of each different piece when dimensions differ.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "CONDITIONAL_REQUIREMENT",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(1)(f)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["*"],
+        "condition": "ONLY_WHEN_SIZE_IS_RELEVANT"
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-CARE-001",
+      "rule_name": "Consumer complaint contact",
+      "description": "Every package must bear the name, address, telephone number and e-mail address, if available, of the person or office that can be contacted for consumer complaints.",
+      "requirement": "Declare name, address, telephone number and e-mail address if available of the consumer-complaint contact.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "REQUIRED_DECLARATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": "Rule 6(2)",
+      "source_version": "2011",
+      "effective_from": "2011-04-01",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "PACKAGED_COMMODITY",
+        "applies_to_categories": ["*"]
+      },
+      "rule_status": "ACTIVE",
+      "verification_status": "VERIFIED",
+      "is_prototype": true
+    },
+    {
+      "rule_code": "LM-PC-ORIGIN-001",
+      "rule_name": "Country of origin for imported products",
+      "description": "Secondary compilations record a later insertion requiring the country of origin, manufacture or assembly on imported products. This row is stored only as a draft so the engine can be tested; it is not treated as production-authoritative.",
+      "requirement": "If encoded after official verification, declare country of origin, manufacture or assembly on imported products.",
+      "category": "PACKAGED_COMMODITY",
+      "validation_type": "REQUIRED_DECLARATION",
+      "severity": "UNSPECIFIED",
+      "source_document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "source_reference": null,
+      "source_version": "2011-amendment-unverified",
+      "effective_from": "2017-06-23",
+      "effective_to": null,
+      "applicability_condition": {
+        "scope": "IMPORTED_PRODUCT",
+        "applies_to_categories": ["IMPORTED_PRODUCT"],
+        "notes": "Reported as Rule 6(1)(aa) via G.S.R. 629(E) dated 23 June 2017 in secondary compilations. Not copied from the official 2011 India Code text used for the verified set. Confirm against the Department of Consumer Affairs consolidated publication before changing verification_status."
+      },
+      "rule_status": "DRAFT",
+      "verification_status": "UNVERIFIED",
+      "is_prototype": true
+    }
+  ]
+}

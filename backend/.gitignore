@@ -1,0 +1,17 @@
+# Real configuration must never be committed.
+.env
+
+# Virtual environments
+.venv/
+venv/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Runtime artefacts created by later phases
+uploads/
+generated/
