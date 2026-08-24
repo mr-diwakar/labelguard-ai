@@ -950,3 +950,47 @@ Do not rewrite `ComplianceEngine` into an LLM. Do not invent legal tolerances. D
 When implementation is requested, the next major build is **Phase 11: Label-to-Product Verification Engine** as a new module beside `compliance/`. Camera/OCR/extraction remain unimplemented and are still required for a real consumer loop.
 
 Until then, this file is the product-direction source; the repository is the implementation source.
+
+---
+
+# 35. Phase 11 status — Integration contracts & shared data architecture `[IMPLEMENTED]`
+
+Phase 11 as executed established the **typed data contracts and integration interfaces**
+that sit *around* the Legal Metrology core. It did **not** build the verification engine,
+OCR, or any algorithm — those remain `[PLANNED]` (see section 34). Full reference:
+`docs/integration-contracts.md`.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New contract package `backend/app/schemas/contracts/`: `detection.py`
+  (`ExtractedDeclaration` + `detection_to_declaration_status` adapter), `context.py`
+  (`InspectionContext`), `evidence.py` (`EvidenceReference`), `verification.py`
+  (`MeasuredValue` / `VerificationInput` / `VerificationResult` — shape only), `nutrition.py`
+  (`NutritionValue` / `NutritionFacts`), `product.py` (`ProductProfile`), `scan.py`
+  (`ScanResult` aggregate), and `__init__.py` re-exports.
+- Additive enums in `core/enums.py`: `DetectionStatus`, `ObservationSource`,
+  `VerificationOutcome`, `EvidenceType` — each documents its relationship to the existing
+  vocabulary. No existing enum changed.
+- `schemas/ingredient.py::IngredientItem` extended with optional fields (backward
+  compatible).
+- Tests: `tests/contracts/test_integration_contracts.py` (34 tests). Suite now
+  **160 passed, 2 skipped** (was 126 + 2). No regressions.
+
+**Key design decisions:**
+
+- The engine's `DeclarationStatus` is locked (DB `CHECK` constraint +
+  `database/models/declaration.py` + validators), so the richer extraction vocabulary
+  lives in a **separate** `DetectionStatus` mapped DOWN by a tested adapter — matching the
+  codebase's existing layer-specific-enum pattern. Not a duplicate status system.
+- `CONFIRMED_ABSENT` → `NOT_DETECTED` at confidence `0.95` so the engine's existing
+  reliable-absence logic yields `POTENTIAL_NON_COMPLIANCE`; if the label is not marked
+  readable it safely degrades to `MANUAL_REVIEW`, never a silent `COMPLIANT`.
+- Verification distinguishes **DECLARED vs OBSERVED**, never emits `FRAUD/CHEATING/ILLEGAL`,
+  and uses `VerificationOutcome` (not the existing `VerificationStatus`).
+- Missing nutrition is `null`/unknown, never `0`.
+- `ScanResult` **reuses** `ComplianceAssessment` for the legal verdict — no competing
+  verdict type.
+
+**Not changed:** `ComplianceEngine`, validators, resolver, DB models, migrations, and the
+`declarations` `CHECK` constraint are untouched. No new tables. Contracts are
+persistence-independent. Phase 12 not started.

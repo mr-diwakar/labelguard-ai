@@ -112,3 +112,86 @@ class ReportStatus(StrEnum):
     PENDING = "PENDING"
     READY = "READY"
     FAILED = "FAILED"
+
+
+# ---------------------------------------------------------------------------
+# Phase 11 integration-contract vocabularies.
+#
+# These sit AROUND the legal engine (see app/schemas/contracts/). They are
+# additive: the legal core, validators and the declarations DB CHECK constraint
+# keep using DeclarationStatus / ComplianceStatus unchanged. Each new enum below
+# documents its relationship to the existing vocabulary so there is one source
+# of truth and no duplicate status system.
+# ---------------------------------------------------------------------------
+
+
+class DetectionStatus(StrEnum):
+    """
+    What the extraction/OCR layer concluded about one field.
+
+    Richer than DeclarationStatus on purpose: a field OCR simply failed to read
+    (NOT_DETECTED / UNCERTAIN) must stay distinct from a field the extractor is
+    confident is absent from a readable label (CONFIRMED_ABSENT).
+
+    This is the extraction-layer vocabulary. It is mapped DOWN to the legal
+    engine's DeclarationStatus by app.schemas.contracts.detection; the engine
+    itself never sees these values. Mapping:
+
+        DETECTED        -> DeclarationStatus.DETECTED
+        UNCERTAIN       -> DeclarationStatus.LOW_CONFIDENCE
+        NOT_DETECTED    -> DeclarationStatus.NOT_DETECTED (uncertain absence)
+        CONFIRMED_ABSENT-> DeclarationStatus.NOT_DETECTED + high confidence, so the
+                           engine's existing is_uncertain() treats it as a
+                           reliable absence (requires label_readable=True)
+        NOT_APPLICABLE  -> not fed to the engine as a declaration; applicability
+                           is decided per-rule by the resolver
+    """
+
+    DETECTED = "DETECTED"
+    NOT_DETECTED = "NOT_DETECTED"
+    CONFIRMED_ABSENT = "CONFIRMED_ABSENT"
+    UNCERTAIN = "UNCERTAIN"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class ObservationSource(StrEnum):
+    """
+    Where an OBSERVED value came from in label-to-product verification.
+
+    A declared value (from the label/OCR) is never an observation. A normal
+    smartphone photo cannot measure mass, so observations arrive from an explicit,
+    named source. Implementation of these sources belongs to a later phase.
+    """
+
+    CALIBRATED_MEASUREMENT = "CALIBRATED_MEASUREMENT"
+    USER_PROVIDED = "USER_PROVIDED"
+    EXTERNAL_EVIDENCE = "EXTERNAL_EVIDENCE"
+    VERIFIED_OBSERVATION = "VERIFIED_OBSERVATION"
+    OTHER = "OTHER"
+
+
+class VerificationOutcome(StrEnum):
+    """
+    Result of one label-to-product verification check.
+
+    NOT the same as VerificationStatus (which records whether a legal *rule row*
+    is VERIFIED / UNVERIFIED / NEEDS_REVIEW). This enum deliberately avoids that
+    name. AI verification must never emit FRAUD / CHEATING / ILLEGAL.
+    """
+
+    MATCH = "MATCH"
+    POTENTIAL_MISMATCH = "POTENTIAL_MISMATCH"
+    COULD_NOT_VERIFY = "COULD_NOT_VERIFY"
+    MANUAL_REVIEW = "MANUAL_REVIEW"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class EvidenceType(StrEnum):
+    """Kind of artefact an EvidenceReference points at. Not a generated image."""
+
+    OCR_REGION = "OCR_REGION"
+    PRODUCT_IMAGE = "PRODUCT_IMAGE"
+    MEASUREMENT = "MEASUREMENT"
+    USER_NOTE = "USER_NOTE"
+    DOCUMENT = "DOCUMENT"
+    OTHER = "OTHER"
