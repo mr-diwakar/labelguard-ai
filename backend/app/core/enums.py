@@ -195,3 +195,56 @@ class EvidenceType(StrEnum):
     USER_NOTE = "USER_NOTE"
     DOCUMENT = "DOCUMENT"
     OTHER = "OTHER"
+
+
+# ---------------------------------------------------------------------------
+# Phase 12 image-intake / OCR vocabularies.
+#
+# These describe the scan -> image-quality -> preprocessing -> OCR pipeline that
+# feeds the Phase 11 OCR contract (app/schemas/ocr.py::OCRResult). They carry NO
+# legal meaning: an OCR or quality status is never a compliance verdict, and
+# NO_TEXT_DETECTED is never "a declaration is missing" (that decision belongs to
+# the later declaration-extraction phase, not Phase 12).
+# ---------------------------------------------------------------------------
+
+
+class ImageQualityStatus(StrEnum):
+    """Overall usability of a scanned image for OCR. Not a legal judgement."""
+
+    OK = "OK"
+    WARNING = "WARNING"  # usable, but OCR may be less reliable
+    UNUSABLE = "UNUSABLE"  # OCR is very unlikely to be reliable
+
+
+class BrightnessStatus(StrEnum):
+    ACCEPTABLE = "ACCEPTABLE"
+    TOO_DARK = "TOO_DARK"
+    TOO_BRIGHT = "TOO_BRIGHT"
+
+
+class ResolutionStatus(StrEnum):
+    OK = "OK"
+    TOO_SMALL = "TOO_SMALL"
+
+
+class OrientationStatus(StrEnum):
+    """Lightweight orientation state, read from EXIF only. No ML model here."""
+
+    OK = "OK"  # no rotation metadata, or already upright
+    CORRECTED = "CORRECTED"  # an EXIF rotation was applied to the OCR image
+    UNKNOWN = "UNKNOWN"  # could not determine; surfaced as a warning
+
+
+class OCRStatus(StrEnum):
+    """
+    Outcome of the OCR stage.
+
+    OCR failure is never legal non-compliance, and NO_TEXT_DETECTED is not the
+    same as a missing declaration.
+    """
+
+    SUCCESS = "SUCCESS"
+    LOW_CONFIDENCE = "LOW_CONFIDENCE"
+    NO_TEXT_DETECTED = "NO_TEXT_DETECTED"
+    PROCESSING_ERROR = "PROCESSING_ERROR"
+    INVALID_IMAGE = "INVALID_IMAGE"

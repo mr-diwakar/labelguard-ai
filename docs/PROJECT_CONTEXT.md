@@ -994,3 +994,56 @@ OCR, or any algorithm — those remain `[PLANNED]` (see section 34). Full refere
 **Not changed:** `ComplianceEngine`, validators, resolver, DB models, migrations, and the
 `declarations` `CHECK` constraint are untouched. No new tables. Contracts are
 persistence-independent. Phase 12 not started.
+
+---
+
+# 36. Phase 12 status — Scan intake, image quality, OpenCV & OCR `[IMPLEMENTED]`
+
+Phase 12 as executed built the **first pipeline segment**
+`PRODUCT IMAGE → SCAN INTAKE → IMAGE QUALITY → IMAGE PROCESSING → OCR → OCR CONTRACT`,
+stopping at OCR. It produces an image, an image-quality report, and OCR output — and
+**nothing else**. No declaration extraction, no Legal Metrology assessment, no rule/engine
+change, no DB change, no public `/scan` API. Full reference: `docs/scan-ocr.md`.
+
+**Delivered (`[IMPLEMENTED]`):**
+
+- New package `backend/app/imaging/`: `validation.py` (magic-byte format sniffing,
+  size/dimension checks → `AppError`), `intake.py` (`load_scan` → `PreparedImage`: single
+  decode, EXIF-upright, `uuid4` scan id), `quality.py` (blur = variance of Laplacian,
+  brightness = mean gray, resolution; `classify_quality` → `OK`/`WARNING`/`UNUSABLE`),
+  `preprocessing.py` (`ImagePreprocessor`: resize/CLAHE/denoise/opt-in binarize),
+  `pipeline.py` (`process_scan(...) -> ScanProcessingResult`).
+- New package `backend/app/ocr/`: `provider.py` (`OCRProvider` Protocol + `RawTextRegion`),
+  `paddle_adapter.py` (`PaddleOCRProvider` — lazy import, once-per-process engine,
+  `available()` probe), `normalization.py` (`to_bbox` / `normalize_region` /
+  `build_ocr_response`), `service.py` (`OCRService`, provider failure → `PROCESSING_ERROR`).
+- `schemas/imaging.py`: container schemas that **reuse** the Phase 11 `OCRResult` for every
+  region and adapt **down** to the Phase 11 `ImageQualityResult`. No second OCR model.
+- Additive enums in `core/enums.py`: `ImageQualityStatus`, `BrightnessStatus`,
+  `ResolutionStatus`, `OrientationStatus`, `OCRStatus`. No existing enum changed.
+- Additive `Settings` fields (all env-tunable, none legal): scan size/formats, image
+  min/max dimensions, blur/brightness thresholds, preprocess max dim, OCR languages and
+  low-confidence threshold.
+- Deps (wheels only): `numpy`, `opencv-python-headless`, `Pillow`. PaddleOCR listed
+  **optional/commented** in `requirements.txt` (lazy, install documented).
+- Tests: `tests/imaging/` + `tests/ocr/` (67 tests, OCR mocked, images generated
+  in-memory). Suite now **227 passed, 2 skipped** (was 160 + 2). No regressions.
+
+**Key design decisions:**
+
+- **OCR adapts to the contract, not vice-versa** (spec §6): `PaddleOCR → PaddleOCRProvider
+  → RawTextRegion → OCRResult`. Swapping the engine or mocking it touches nothing else.
+- **Quality and OCR stay separate signals** (no single global "legal confidence"): an
+  `UNUSABLE` image still runs OCR; a good read never overrides the quality verdict.
+- **No semantics**: `"MRP ₹50"` is kept as a string; it never becomes a value/field.
+  `NO_TEXT_DETECTED` ≠ missing declaration; OCR failure ≠ non-compliance (spec §19/§20/§23).
+- **PaddleOCR deferred, not forced**: heavy + downloads models at runtime, so it is loaded
+  lazily behind a Protocol; the app and the whole test suite run without it. No system-level
+  changes (Docker/Hyper-V/services) were made.
+- **Original preserved**: input bytes are never mutated or written; all processing is on
+  copies. Format is decided by magic bytes, never the filename.
+
+**Not changed:** `ComplianceEngine`, validators, resolver, all Phase 11 contracts, DB
+models, migrations, and the `declarations` `CHECK` constraint are untouched. No new tables,
+no migrations, no new production API endpoints. Declaration extraction (Phase 15), Legal
+Metrology integration (Phase 16), and verification (Phase 17) are **not started**.

@@ -10,6 +10,21 @@ sqlalchemy>=2.0.36
 alembic>=1.14.0
 psycopg[binary]>=3.2.0
 
+# Phase 12 — scan intake / image quality / OpenCV preprocessing.
+# Install as wheels only (no source build): these ship prebuilt wheels for
+# Python 3.14 on Windows. opencv-python-headless (not opencv-python) avoids GUI
+# and extra system libraries the server does not need.
+numpy>=2.1.0
+opencv-python-headless>=4.10.0
+Pillow>=11.0.0
+
+# Phase 12 — OCR engine (OPTIONAL, not installed by default).
+# PaddleOCR is heavy and downloads models on first use; the code loads it lazily
+# behind app/ocr/paddle_adapter.py, so the app and tests run without it. To enable
+# real OCR locally, install it explicitly (see docs/scan-ocr.md):
+#   pip install paddlepaddle paddleocr
+# paddleocr>=2.7.0
+
 # Testing
 pytest>=8.3.0
 pytest-cov>=5.0.0
