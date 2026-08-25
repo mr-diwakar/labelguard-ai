@@ -3,6 +3,17 @@
 from app.schemas.applicability import ApplicabilityReport, ProductContext
 from app.schemas.assessment import AssessmentItem, ComplianceAssessment, ComplianceRequest
 from app.schemas.common import BoundingBox, ErrorResponse, HealthResponse
+from app.schemas.comparison import (
+    ComparisonProductInput,
+    ComparisonRequest,
+    ComparisonResult,
+    ExcludedParameter,
+    NutritionValueInput,
+    ParameterScore,
+    PriorityWeight,
+    ProductComparisonResult,
+    RankEntry,
+)
 from app.schemas.compliance import ComplianceFinding, ComplianceResult
 from app.schemas.declaration import Declaration, DeclarationCheck
 from app.schemas.evidence import EvidenceItem
@@ -20,6 +31,9 @@ __all__ = [
     "ApplicabilityReport",
     "AssessmentItem",
     "BoundingBox",
+    "ComparisonProductInput",
+    "ComparisonRequest",
+    "ComparisonResult",
     "ComplianceAssessment",
     "ComplianceFinding",
     "ComplianceRequest",
@@ -28,6 +42,7 @@ __all__ = [
     "DeclarationCheck",
     "ErrorResponse",
     "EvidenceItem",
+    "ExcludedParameter",
     "HealthResponse",
     "ImageQualityResult",
     "IngredientItem",
@@ -35,9 +50,14 @@ __all__ = [
     "InspectionSummary",
     "LegalRuleRecord",
     "NutritionResult",
+    "NutritionValueInput",
     "OCRResult",
+    "ParameterScore",
+    "PriorityWeight",
+    "ProductComparisonResult",
     "ProductContext",
     "ProductResponse",
+    "RankEntry",
     "ReportResult",
     "ScanResponse",
     "ValidationContext",

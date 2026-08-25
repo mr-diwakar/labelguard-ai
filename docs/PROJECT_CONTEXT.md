@@ -28,6 +28,24 @@ Give this file to future AI coding assistants, teammates, developers, and integr
 
 ---
 
+## Recent changes (2026-08-25)
+
+**Multi-product nutrition comparison (Phase 13) — a deterministic scoring engine exists locally, but is NOT yet committed to git.**
+
+A deterministic, LLM-free comparison engine now exists in the working tree under `backend/app/comparison/` with full request/result Pydantic contracts and 75 passing unit tests. It is an in-process domain engine, tested with fixtures, in the same style as the legal `ComplianceEngine`. It is **not exposed over HTTP** and **not persisted to the database**. See **§15.1** for the complete subsystem description and the exact scoring formula.
+
+> ⚠️ **Git state (verified 2026-08-25):** this work is **uncommitted local working-tree state — on no commit and no branch yet.** `git status` shows `app/comparison/`, `app/schemas/comparison.py` and `tests/comparison/` as **untracked (`??`)**, and `app/core/enums.py` + `app/schemas/__init__.py` as **modified-but-unstaged (` M`)**. The checkout sits on branch `feature/verification-modules`, but that branch currently **equals `main`** (`git rev-list --left-right --count main...feature/verification-modules` → `0  0`), so nothing has "landed on" it. Until it is committed the work is invisible to CI, clones and teammates, and would be lost by `git stash`, `git checkout .`, or a fresh checkout. **First durable step for whoever continues: commit these paths** (the owner did not authorise a commit in this session).
+
+New status label used only for this work:
+
+| Label | Meaning |
+| --- | --- |
+| `[IMPLEMENTED — uncommitted]` | Present, working and tested in the local working tree; **on no commit/branch** (untracked + unstaged files), no HTTP/DB wiring. Must be committed to be shareable. |
+
+Everything else in this document describes committed code on `main`. Trust the code (and `git status`) over this file if they disagree.
+
+---
+
 # 1. Project identity
 
 | Item | Value |
@@ -205,7 +223,7 @@ Live HTTP: **only** `GET /health` and `GET /api/v1/health`.
 | Scan HTTP API | `[PLANNED]` |
 | Label-to-product verification engine | `[PLANNED]` — **next major phase** |
 | Nutrition engine | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
-| Multi-product nutrition comparison | `[PLANNED]` |
+| Multi-product nutrition comparison | `[IMPLEMENTED — uncommitted]` — deterministic scoring/ranking/explanation engine in `app/comparison/`, 75 tests. **Uncommitted working tree** (untracked/modified, on no commit), no API/DB. See §15.1 |
 | Ingredient intelligence engine | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
 | Evidence image generation / PDF | `[PLANNED]` / `[TEAMMATE WORK — NOT INTEGRATED]` |
 | Auth / passwords | `[PLANNED]` — not present |
@@ -415,6 +433,7 @@ backend/
     database/               SQLAlchemy models, lazy engine
     schemas/                Pydantic contracts
     compliance/             legal core (no FastAPI/OCR/SQLAlchemy inside validators)
+    comparison/             nutrition comparison engine (uncommitted/untracked; no FastAPI/DB inside)
   migrations/
   seeds/
   tests/
@@ -576,7 +595,7 @@ Never invent missing values. Use **“Not detected.”** No medical claims.
 
 Planned extractables: calories/energy, protein, carbohydrates, total sugar, added sugar where available, fat, saturated fat, trans fat, fiber, sodium, other available values.
 
-## Multi-product comparison `[PLANNED]` (Phase 13)
+## Multi-product comparison `[IMPLEMENTED — uncommitted]` (Phase 13)
 
 Scan **current** products A, B, C. Compare calories, sugar, added sugar, protein, fiber, sodium, fat, saturated fat, trans fat, carbohydrates.
 
@@ -585,6 +604,109 @@ User priorities (examples): lower sugar, higher protein, higher fiber, lower sod
 Use a **deterministic, explainable** ranking: “Product B ranks highest based on the user's selected parameters,” with why (lowest sugar, highest protein, higher fiber, higher calories). Never say “Product B is the healthiest.” No medical claims. Keep the UI simple. Do not build a massive recommendation engine.
 
 This is **current A vs current B vs current C**. It is **not** historical SKU change detection.
+
+## 15.1 Comparison engine — current implementation (uncommitted working tree)
+
+Built as an **in-process, deterministic, LLM-free** domain engine beside `compliance/`, in the same spirit as the legal core: pure functions, `Decimal` arithmetic, fixture-tested, no FastAPI/OCR/SQLAlchemy inside. **Uncommitted working-tree state — untracked/modified files on no commit (see the banner at the top and §33), no HTTP endpoint, no DB persistence.** It consumes *already-extracted* nutrition values (it does not read images or call the OCR/nutrition extractors, which are still `[PLANNED]`).
+
+### Files
+
+```text
+backend/app/comparison/
+  __init__.py         package marker
+  units.py            deterministic unit normalisation
+  scoring.py          scoring + ranking + explanation  (public entry point)
+backend/app/schemas/comparison.py   request + result Pydantic contracts
+backend/tests/comparison/
+  test_comparison_schemas.py   27 tests
+  test_comparison_units.py     28 tests
+  test_comparison_scoring.py   20 tests
+```
+
+Enums added to `app/core/enums.py` (appended; nothing existing changed): `NutritionParameter` (CALORIES, SUGAR, ADDED_SUGAR, PROTEIN, CARBOHYDRATES, FAT, SATURATED_FAT, TRANS_FAT, FIBER, SODIUM), `ParameterDirection` (LOWER_BETTER, HIGHER_BETTER), `NutritionBasis` (PER_100G, PER_SERVING, UNKNOWN), `ComparisonPriority` (ten `LOWER_*` / `HIGHER_*` values), `ComparisonOutcome` (RANKED, TIED, COULD_NOT_RANK), `ComparisonStatus` (COMPLETED, INSUFFICIENT_DATA). The nine comparison schemas are re-exported from `app/schemas/__init__.py`.
+
+### Public API
+
+```python
+from app.comparison.scoring import score_comparison   # ComparisonRequest -> ComparisonResult
+from app.comparison.units import normalize_value, normalize_input, canonical_unit_for
+```
+
+`score_comparison(request)` is the single entry point. It performs no I/O, calls no model, never mutates the request, and never raises for bad *data* (invalid weights are rejected earlier by the request schema).
+
+### Pipeline
+
+```text
+raw values -> unit normalisation -> per-parameter min-max -> user weights
+           -> weighted score -> ranking -> explanation
+```
+
+**Direction (fixed per parameter; the `LOWER_`/`HIGHER_` prefix on `ComparisonPriority` is the source of truth, mirrored by `PRIORITY_SPEC` in `scoring.py`):**
+
+- LOWER_BETTER: calories, sugar, added sugar, carbohydrates, fat, saturated fat, trans fat, sodium
+- HIGHER_BETTER: protein, fiber
+
+**Per-parameter normalisation — relative min-max over only the products with a comparable value for that parameter** (no fixed health thresholds; the repository defines none):
+
+```text
+higher-is-better:  score = (value - min) / (max - min)
+lower-is-better:   score = (max - value) / (max - min)
+max == min         -> 0.5   (neutral; the parameter differentiates no one)
+```
+
+**Weighting and final score, per product, over only its available parameters `A`:**
+
+```text
+effective_weight(p)      = raw_weight(p) / sum(raw_weight(q) for q in A)   # sums to 1
+weighted_contribution(p) = normalized_score(p) * effective_weight(p)
+final_score              = sum(weighted_contribution(p) for p in A)        # quantised to 6 dp
+```
+
+### Missing values (never invented, never zero)
+
+A parameter a product did not declare is `NOT_DETECTED` (the project's existing convention — there is **no** `MISSING` status). Such a parameter is **dropped from that product's `A`**; its remaining weights re-normalise so they still sum to 1. The product is therefore neither rewarded (no artificial best) nor penalised (no artificial worst). Missingness is surfaced per product via `missing_parameters` and `coverage`. A parameter comparable for **fewer than two** products cannot differentiate anyone and is excluded from the whole comparison, reported in `excluded_parameters` with a reason.
+
+A **declared** value that cannot be parsed is treated the same way, not as an error: an unrecognised or dimensionally-wrong unit (`UNSUPPORTED_UNIT`, e.g. sugar in `cups` or `kJ`) or an invalid magnitude (`INVALID_VALUE`, e.g. negative or non-finite) is not `is_comparable`, so it is dropped from that product's `A` exactly like `NOT_DETECTED`. The difference is visibility: an unparseable declared value also appends a message to that product's `ProductComparisonResult.warnings`, whereas a genuinely undeclared (`NOT_DETECTED`) value is silent. Because the two-product threshold counts only comparable values, a bad unit on one product can also push a whole parameter into `excluded_parameters`.
+
+### Determinism & ranking
+
+All arithmetic is `Decimal`; scores quantise to 6 dp (also the tie-equality threshold). Ranking is standard competition ranking (ties share a rank); display order breaks ties by request order, so repeated runs on the same request are byte-identical. No randomness, no clock.
+
+### Output shape (`ComparisonResult`)
+
+Maps to the conceptual `{ rankings, winner, criteria, explanation }` as follows:
+
+| Conceptual | In `ComparisonResult` |
+| --- | --- |
+| rankings | `ranking: list[RankEntry]` (rank, product_id, product_name, score) |
+| winner | `ranking[0]` and named in `explanation` (no dedicated `winner` field yet) |
+| criteria | `priorities_used: list[PriorityWeight]` + `active_parameters` |
+| explanation | top-level `explanation: str` + per-product `highlights: list[str]` |
+
+Also present: `status`, `excluded_parameters`, `disclaimer` (informational, always set). Each `ProductComparisonResult` carries `product_id`, `product_name`, `rank`, `score`, `outcome` (RANKED/TIED/COULD_NOT_RANK), `coverage`, `parameter_scores`, `available_parameters`, `missing_parameters`, `highlights`, `warnings`. Each `ParameterScore` exposes the full arithmetic: `canonical_value`, `unit`, `status`, `included`, `normalized_score`, `weight`, `effective_weight`, `weighted_contribution`, `note`. **Note on `warnings`:** data-quality warnings surface **per product** on `ProductComparisonResult.warnings`; the top-level `ComparisonResult.warnings` field exists in the schema but `score_comparison` does not currently populate it, so it is always `[]` today.
+
+**Result language is enforced:** the top product "ranks highest based on your selected parameters (…)"; the engine never says "healthiest" and makes no medical claims.
+
+### What is done vs. what remains
+
+Done (Phases A–E): repository inspection, module design, schemas, unit normalisation, and the deterministic scoring + ranking + top-level explanation, all tested (75 tests, all passing).
+
+**Remaining / deferred (the owner's declared next prompt):**
+
+1. **Richer explanations** — per-product *concise* natural-language sentences and **trade-off** phrasing ("Product B ranks higher overall because it has lower sugar and higher protein, although Product A has lower calories"). Today the engine emits a single top-level `explanation` sentence plus per-product `highlights` (e.g. "Lowest sugar of the compared products"); the sentence-level per-product + trade-off generation is not yet built.
+2. **Basis safety** — `ComparisonProductInput.basis` (PER_100G / PER_SERVING / UNKNOWN) exists but scoring does **not** yet reject mixing bases; callers must pass a shared basis. A guard is a good next addition.
+3. **HTTP API** — no `POST /api/v1/comparison`; `score_comparison` is ready to wire behind one.
+4. **Persistence** — `comparison_sessions` / `comparison_items` tables still do not exist (see §17); the engine is stateless and needs neither to run.
+5. **Commit & integration** — the engine is **uncommitted** (untracked/modified files, on no commit — see the banner and §33), so the first git step is to commit `app/comparison/`, `app/schemas/comparison.py`, `tests/comparison/` and the `enums.py` / `schemas/__init__.py` edits. Then connect real nutrition-extraction output to `NutritionValueInput`, and merge into `main`.
+
+### Running the tests
+
+```bash
+cd backend
+python -m pytest tests/comparison/        # 75 tests
+```
+
+
 
 ---
 
@@ -618,6 +740,8 @@ Inspection children cascade from inspection. Product delete is **RESTRICT** whil
 
 **Planned tables (do not exist):** `verification_results`, `verification_checks`, `measurement_observations`, `comparison_sessions`, `comparison_items`.
 
+The comparison engine (§15.1) is currently **stateless** — it scores an in-memory `ComparisonRequest` and requires neither `comparison_sessions` nor `comparison_items` to run. Add those only when persisting comparison history.
+
 When added, reuse existing product/declaration/inspection models. Do not duplicate data. `evidence` already exists.
 
 ---
@@ -638,6 +762,8 @@ Error body: `{ "error": { "code": "...", "message": "...", "details": {} } }`. N
 `ScanResponse` is a **future** scan contract in `app/schemas/scan.py`. There is no `POST /scans`.
 
 **Future APIs (not implemented):** `POST /verification`, `POST /verification/quantity`, `POST /verification/count`, `POST /comparison`, `GET /products/{id}/verification`.
+
+`POST /comparison` is not implemented, but its engine is ready: a route can call `score_comparison(ComparisonRequest) -> ComparisonResult` directly (§15.1). Both schemas are already exported from `app/schemas`.
 
 ---
 
@@ -723,6 +849,8 @@ Legal tests use **manual declaration fixtures**. They do **not** require OCR, ca
 
 No verification-engine tests (module absent). No mobile test suite. This file does not freeze a pass count.
 
+In the local (uncommitted) working tree there are 75 additional comparison-engine tests under `tests/comparison/` (`test_comparison_schemas.py`, `test_comparison_units.py`, `test_comparison_scoring.py`); like the legal tests they use manual fixtures and need no OCR, camera or live scan. They are not committed yet (see the banner), so they will not run in CI or a fresh clone until committed.
+
 ---
 
 # 23. Security (actual vs intended)
@@ -763,8 +891,8 @@ Expected value extraction, current observation input, quantity/text/count where 
 **Phase 12 — `[PLANNED]` — Advanced verification**  
 Richer checks, identity, more observation types, tighter evidence.
 
-**Phase 13 — `[PLANNED]` — Multi-product nutrition comparison**  
-Scan several products, user priorities, deterministic scoring, explainable ranking.
+**Phase 13 — `[IMPLEMENTED — uncommitted]` — Multi-product nutrition comparison**  
+Deterministic scoring, ranking and top-level explanation built in `app/comparison/` (75 tests), currently **uncommitted in the working tree** (see the banner). Remaining: commit the work, per-product concise + trade-off explanations, basis guard, HTTP API, persistence, and merge to `main`. See §15.1.
 
 **Phase 14 — `[PLANNED]` — Evidence / reporting enhancements**  
 Highlights, measurement evidence, reports, saved verification.
@@ -921,7 +1049,7 @@ Do not rewrite `ComplianceEngine` into an LLM. Do not invent legal tolerances. D
 
 # 32. Known limitations (master)
 
-- No camera, OCR engine, scan API, verification engine, or nutrition comparison
+- No camera, OCR engine, scan API, or verification engine on `main`. A deterministic nutrition-**comparison** engine exists **only as uncommitted local working-tree state** (untracked/modified files, on no commit; no API/DB, no per-product/trade-off explanations yet — see the banner and §15.1)
 - Legal engine tested with **manual declarations**
 - Mobile is mock; Home still resembles an inspection dashboard
 - Prototype 2011 rules only; later amendments not encoded except draft origin
@@ -935,7 +1063,7 @@ Do not rewrite `ComplianceEngine` into an LLM. Do not invent legal tolerances. D
 
 # 33. File inventory (master)
 
-**Backend:** `app/main.py`; `api/health.py`, `api/router.py`; `core/config.py`, `enums.py`, `exceptions.py`, `logging_config.py`, `request_logging.py`; `database/` models (`user`, `product`, `inspection`, `declaration`, `nutrition`, `ingredient`, `legal_rule`, `violation`, `evidence`, `report`); `schemas/` (`common`, `ocr`, `declaration`, `product`, `inspection`, `legal_rule`, `validation`, `compliance`, `assessment`, `applicability`, `nutrition`, `ingredient`, `evidence`, `report`, `scan`); `compliance/` (`engine`, `aggregation`, `applicability`, `dates`, `registry`, `repository`, `resolver`, `rule_loader`, `selection`, validators); `seeds/legal_rules.py`; migrations `0001_foundation`, `0002_models`, `0003_legal_rule_traceability`.
+**Backend:** `app/main.py`; `api/health.py`, `api/router.py`; `core/config.py`, `enums.py`, `exceptions.py`, `logging_config.py`, `request_logging.py`; `database/` models (`user`, `product`, `inspection`, `declaration`, `nutrition`, `ingredient`, `legal_rule`, `violation`, `evidence`, `report`); `schemas/` (`common`, `ocr`, `declaration`, `product`, `inspection`, `legal_rule`, `validation`, `compliance`, `assessment`, `applicability`, `nutrition`, `ingredient`, `evidence`, `report`, `scan`, `comparison`); `compliance/` (`engine`, `aggregation`, `applicability`, `dates`, `registry`, `repository`, `resolver`, `rule_loader`, `selection`, validators); `comparison/` (`units`, `scoring`) *[**uncommitted** — untracked working-tree files, on no commit, with `tests/comparison/` and `schemas/comparison.py`; must be committed to persist]*; `seeds/legal_rules.py`; migrations `0001_foundation`, `0002_models`, `0003_legal_rule_traceability`.
 
 **Mobile:** `App.tsx`, `navigation/`, screens listed in section 19, `i18n/locales/` (7 files), `data/mockInspections.ts`, `data/mockStatistics.ts`, `theme/index.ts`, `types/inspection.ts`.
 
@@ -948,5 +1076,7 @@ Do not rewrite `ComplianceEngine` into an LLM. Do not invent legal tolerances. D
 # 34. How to continue
 
 When implementation is requested, the next major build is **Phase 11: Label-to-Product Verification Engine** as a new module beside `compliance/`. Camera/OCR/extraction remain unimplemented and are still required for a real consumer loop.
+
+For the **nutrition-comparison** track (§15.1), the work is currently **uncommitted** (see the banner), so step (0) is to commit `app/comparison/`, `app/schemas/comparison.py`, `tests/comparison/` and the `enums.py` / `schemas/__init__.py` edits. Then the immediate next steps are: (1) per-product concise + trade-off explanations generated from the already-computed values, (2) a shared-basis guard, (3) a `POST /comparison` route over `score_comparison`, then (4) persistence and merge to `main`. Keep it deterministic and LLM-free; do not add a recommendation engine or medical claims.
 
 Until then, this file is the product-direction source; the repository is the implementation source.
