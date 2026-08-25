@@ -20,7 +20,7 @@ import { FadeIn } from '../components/FadeIn';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { SectionHeader } from '../components/SectionHeader';
-import { findMockInspection } from '../data/mockInspections';
+import { getInspection } from '../data/inspectionStore';
 import { EvidenceScreenProps } from '../navigation/types';
 import { colors, radii, spacing, touchTarget, typography } from '../theme';
 import { EvidenceItem, EvidenceType } from '../types/inspection';
@@ -36,7 +36,7 @@ interface CaptureAction {
 
 export function EvidenceScreen({ navigation, route }: EvidenceScreenProps) {
   const { t } = useTranslation();
-  const inspection = findMockInspection(route.params.inspectionId);
+  const inspection = getInspection(route.params.inspectionId);
 
   // Seeded from the mock record; capture actions append to this local list so
   // the workflow is exercised end to end without a backend.

@@ -1,0 +1,16 @@
+{
+  "//": "Standalone TS config for ts-jest ONLY. It deliberately does NOT extend expo/tsconfig.base: the app build uses module=preserve + moduleResolution=bundler + customConditions=[react-native], which are incompatible with the CommonJS output Jest needs. The unit tests here cover pure, node-runnable logic (api/adapter, api/client, i18n parity) with zero React Native imports, so a plain node/commonjs compile is correct and keeps the real tsconfig.json untouched.",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "isolatedModules": false,
+    "noEmit": false
+  },
+  "include": ["api", "data", "types", "i18n", "__tests__"]
+}

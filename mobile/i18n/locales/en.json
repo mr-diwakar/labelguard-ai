@@ -59,7 +59,11 @@
     "manufacturer": "Manufacturer",
     "countryOfOrigin": "Country of Origin",
     "manufacturerAddress": "Manufacturer address",
-    "manualReview": "Manual Review"
+    "manualReview": "Manual Review",
+    "name": "Product name",
+    "date": "Date",
+    "consumerCare": "Consumer care",
+    "generic": "Declaration"
   },
   "status": {
     "compliantLabel": "Compliant",
@@ -81,12 +85,22 @@
     "wellLit": "Well lit",
     "notBlurry": "Not blurry",
     "insideFrame": "Fully inside the frame",
-    "capture": "Run Sample Inspection",
-    "footnote": "The camera is not enabled in this preview build. Capture runs a simulated inspection using sample data."
+    "capture": "Run Sample Scan",
+    "footnote": "Checks are based only on information visible on the label. A camera cannot measure the quantity sealed inside a package.",
+    "chooseSampleTitle": "Or use a sample label",
+    "chooseSampleHint": "No usable camera? Pick a sample label instead. Each one is sent to the real backend.",
+    "permissionChecking": "Checking camera access…",
+    "permissionTitle": "Camera access needed",
+    "permissionHint": "LabelGuard uses the camera to photograph the product label it checks.",
+    "permissionDeniedHint": "Camera access is turned off. Enable it in your device settings, then return here.",
+    "permissionGrant": "Allow Camera",
+    "capturePhoto": "Capture Label",
+    "capturing": "Capturing…",
+    "captureFailed": "The photo could not be captured. Please try again."
   },
   "processing": {
     "title": "Analysing Label",
-    "subtitle": "Simulated inspection pipeline using sample data.",
+    "subtitle": "Running the label through the compliance pipeline.",
     "imageQuality": "Image Quality",
     "ocr": "Text Recognition",
     "extraction": "Declaration Extraction",
@@ -99,7 +113,10 @@
     "completeDescription": "Automated assessment complete. Manual verification recommended.",
     "viewResult": "View Result",
     "viewEvidence": "View Evidence",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loadingTitle": "Running checks…",
+    "loadingSubtitle": "Sending the label to the compliance pipeline. This usually takes a moment.",
+    "loadingSubtitleImage": "Uploading the photo, reading the label text, then running the compliance checks."
   },
   "result": {
     "title": "Result",
@@ -161,7 +178,8 @@
     "methodOcr": "Read from label text",
     "methodMeasurement": "Manual measurement",
     "methodCv": "Detected automatically",
-    "methodManual": "Entered manually"
+    "methodManual": "Entered manually",
+    "checkGeneric": "Declared value"
   },
   "evidence": {
     "title": "Evidence Preview",
@@ -252,5 +270,32 @@
     "labelInformation": "Other details printed on the package.",
     "compare": "Compare this product with similar packaged products.",
     "report": "Save this inspection or export a shareable report."
+  },
+  "live": {
+    "legalUnavailable": "The legal label check could not be completed for this scan, so it is marked for manual review — not as compliant.",
+    "demoBadge": "DEMO",
+    "demoNote": "Sample record for interface preview.",
+    "apiBadge": "LIVE",
+    "apiNote": "Real result from the backend, based only on information visible on the label.",
+    "demoClear": "Complete label",
+    "demoIssue": "Incomplete label",
+    "demoMismatch": "Declared vs measured",
+    "unnamedProduct": "Scanned product",
+    "stageExtraction": "Reading declarations",
+    "stageLegal": "Legal label check",
+    "stageVerification": "Label-to-product check",
+    "stageGuidance": "Consumer guidance",
+    "stageNutrition": "Nutrition",
+    "stageCompleted": "Done",
+    "stageSkipped": "Skipped",
+    "stageFailed": "Not available",
+    "retryTitle": "Scan could not be completed",
+    "retry": "Try Again",
+    "errorNetwork": "Could not reach the server. Check that the backend is running and try again.",
+    "errorTimeout": "The scan took too long to respond. Please try again.",
+    "errorHttp": "The server could not process this scan. Please try again.",
+    "errorMalformed": "The server response could not be read. Please try again.",
+    "stageImage": "Photo check",
+    "stageOcr": "Reading label text"
   }
 }

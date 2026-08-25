@@ -2,6 +2,8 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { DemoScanKey } from '../data/demoScans';
+import type { CapturedImage } from '../api/client';
 import { EvidenceItem } from '../types/inspection';
 
 export type MainTabParamList = {
@@ -13,7 +15,12 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
-  Processing: { inspectionId: string };
+  /**
+   * Runs one real scan, then replaces itself with Result. Exactly one input is
+   * used: `image` (a photo just captured by the camera, uploaded for backend OCR)
+   * or `demoKey` (a bundled sample OCR reading). `image` wins if both are given.
+   */
+  Processing: { demoKey?: DemoScanKey; image?: CapturedImage };
   /** Consumer-first result overview shown after processing. */
   Result: { inspectionId: string };
   /** "What was verified?" — label-to-product check detail. */

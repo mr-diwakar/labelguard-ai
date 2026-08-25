@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { AppHeader } from '../components/AppHeader';
+import { DataSourceNotice } from '../components/DataSourceNotice';
 import { EmptyState } from '../components/EmptyState';
 import { FadeIn } from '../components/FadeIn';
 import { LegalCheckList } from '../components/LegalCheckList';
@@ -14,7 +15,8 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Surface } from '../components/Surface';
 import { VerificationStatusBadge } from '../components/VerificationStatusBadge';
 import { VERIFICATION_PRESENTATION } from '../constants/verification';
-import { findMockInspection } from '../data/mockInspections';
+import { DEFAULT_DEMO_KEY } from '../data/demoScans';
+import { getDemoKeyFor, getInspection } from '../data/inspectionStore';
 import { ResultScreenProps } from '../navigation/types';
 import { colors, radii, spacing, typography } from '../theme';
 import { VerificationOutcome } from '../types/inspection';
@@ -23,7 +25,7 @@ import { formatRelativeDate } from '../utils/formatRelativeDate';
 
 export function ResultScreen({ navigation, route }: ResultScreenProps) {
   const { t } = useTranslation();
-  const inspection = findMockInspection(route.params.inspectionId);
+  const inspection = getInspection(route.params.inspectionId);
 
   if (!inspection) {
     return (
@@ -64,6 +66,8 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
       />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <DataSourceNotice inspection={inspection} />
+
         {/* Priority 1 — Legal Metrology label check. */}
         <FadeIn>
           <Surface>
@@ -160,7 +164,11 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
                 label={t('result.verifyAgain')}
                 icon="refresh-outline"
                 variant="outline"
-                onPress={() => navigation.navigate('Processing', { inspectionId: inspection.id })}
+                onPress={() =>
+                  navigation.navigate('Processing', {
+                    demoKey: getDemoKeyFor(inspection.id) ?? DEFAULT_DEMO_KEY,
+                  })
+                }
                 fullWidth
                 style={styles.actionButton}
               />
@@ -210,7 +218,11 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
           </View>
         </FadeIn>
 
-        <Text style={styles.disclaimer}>{t('common.sampleData')}</Text>
+        {/* The blanket "sample data" line applies only to bundled demo records;
+            a real API result is labelled by the DataSourceNotice above instead. */}
+        {(inspection.source ?? 'DEMO') === 'DEMO' && (
+          <Text style={styles.disclaimer}>{t('common.sampleData')}</Text>
+        )}
       </ScrollView>
     </ScreenContainer>
   );

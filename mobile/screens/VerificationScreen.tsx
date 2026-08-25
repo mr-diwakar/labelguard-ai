@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { AppHeader } from '../components/AppHeader';
+import { DataSourceNotice } from '../components/DataSourceNotice';
 import { DeclaredObservedRow } from '../components/DeclaredObservedRow';
 import { EmptyState } from '../components/EmptyState';
 import { FadeIn } from '../components/FadeIn';
@@ -10,14 +11,14 @@ import { ScreenContainer } from '../components/ScreenContainer';
 import { Surface } from '../components/Surface';
 import { VerificationStatusBadge } from '../components/VerificationStatusBadge';
 import { VERIFICATION_PRESENTATION } from '../constants/verification';
-import { findMockInspection } from '../data/mockInspections';
+import { getInspection } from '../data/inspectionStore';
 import { VerificationScreenProps } from '../navigation/types';
 import { colors, radii, spacing, typography } from '../theme';
 import { formatConfidence } from '../utils/formatConfidence';
 
 export function VerificationScreen({ navigation, route }: VerificationScreenProps) {
   const { t } = useTranslation();
-  const inspection = findMockInspection(route.params.inspectionId);
+  const inspection = getInspection(route.params.inspectionId);
   const verification = inspection?.verification;
 
   if (!inspection || !verification || verification.checks.length === 0) {
@@ -51,6 +52,8 @@ export function VerificationScreen({ navigation, route }: VerificationScreenProp
       />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <DataSourceNotice inspection={inspection} />
+
         <FadeIn>
           <Surface>
             <View style={styles.header}>

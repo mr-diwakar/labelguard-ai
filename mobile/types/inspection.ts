@@ -53,6 +53,18 @@ export interface Inspection {
   verification?: VerificationResult;
   /** Evidence artefacts. Absent or empty when none were captured/generated. */
   evidence?: EvidenceItem[];
+  /**
+   * Where this record came from: 'API' = a live scan through the backend,
+   * 'DEMO' = a bundled sample record. Absent on legacy records (treated as demo).
+   */
+  source?: 'DEMO' | 'API';
+  /**
+   * i18n keys for advisory notices about missing/partial data (e.g. the legal
+   * stage was skipped). Rendered as localized lines, never as an error.
+   */
+  notices?: string[];
+  /** Raw backend warning strings (already human-readable), shown as-is when present. */
+  warnings?: string[];
 }
 
 export interface InspectionSummary {
