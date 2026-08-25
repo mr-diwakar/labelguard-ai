@@ -156,7 +156,7 @@ class ComparisonPriority(StrEnum):
     LOWER_SUGAR = "LOWER_SUGAR"
     LOWER_ADDED_SUGAR = "LOWER_ADDED_SUGAR"
     HIGHER_PROTEIN = "HIGHER_PROTEIN"
-    LOWER_CARBOHYDRATES = "LOWER_CARBOHYDRATES"
+    LOWER_CARBOHYDRATES = "LOWER_CARBOBYDRATES"
     LOWER_FAT = "LOWER_FAT"
     LOWER_SATURATED_FAT = "LOWER_SATURATED_FAT"
     LOWER_TRANS_FAT = "LOWER_TRANS_FAT"
@@ -180,3 +180,155 @@ class ComparisonStatus(StrEnum):
     INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
     SINGLE_PRODUCT = "SINGLE_PRODUCT"
 
+
+# ---------------------------------------------------------------------------
+# Phase 11 integration-contract vocabularies.
+#
+# These sit AROUND the legal engine (see app/schemas/contracts/). They are
+# additive: the legal core, validators and the declarations DB CHECK constraint
+# keep using DeclarationStatus / ComplianceStatus unchanged. Each new enum below
+# documents its relationship to the existing vocabulary so there is one source
+# of truth and no duplicate status system.
+# ---------------------------------------------------------------------------
+
+
+class DetectionStatus(StrEnum):
+    """
+    What the extraction/OCR layer concluded about one field.
+
+    Richer than DeclarationStatus on purpose: a field OCR simply failed to read
+    (NOT_DETECTED / UNCERTAIN) must stay distinct from a field the extractor is
+    confident is absent from a readable label (CONFIRMED_ABSENT).
+
+    This is the extraction-layer vocabulary. It is mapped DOWN to the legal
+    engine's DeclarationStatus by app.schemas.contracts.detection; the engine
+    itself never sees these values. Mapping:
+
+        DETECTED        -> DeclarationStatus.DETECTED
+        UNCERTAIN       -> DeclarationStatus.LOW_CONFIDENCE
+        NOT_DETECTED    -> DeclarationStatus.NOT_DETECTED (uncertain absence)
+        CONFIRMED_ABSENT-> DeclarationStatus.NOT_DETECTED + high confidence, so the
+                           engine's existing is_uncertain() treats it as a
+                           reliable absence (requires label_readable=True)
+        NOT_APPLICABLE  -> not fed to the engine as a declaration; applicability
+                           is decided per-rule by the resolver
+    """
+
+    DETECTED = "DETECTED"
+    NOT_DETECTED = "NOT_DETECTED"
+    CONFIRMED_ABSENT = "CONFIRMED_ABSENT"
+    UNCERTAIN = "UNCERTAIN"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class ObservationSource(StrEnum):
+    """
+    Where an OBSERVED value came from in label-to-product verification.
+
+    A declared value (from the label/OCR) is never an observation. A normal
+    smartphone photo cannot measure mass, so observations arrive from an explicit,
+    named source. Implementation of these sources belongs to a later phase.
+    """
+
+    CALIBRATED_MEASUREMENT = "CALIBRATED_MEASUREMENT"
+    USER_PROVIDED = "USER_PROVIDED"
+    EXTERNAL_EVIDENCE = "EXTERNAL_EVIDENCE"
+    VERIFIED_OBSERVATION = "VERIFIED_OBSERVATION"
+    OTHER = "OTHER"
+
+
+class VerificationOutcome(StrEnum):
+    """
+    Result of one label-to-product verification check.
+
+    NOT the same as VerificationStatus (which records whether a legal *rule row*
+    is VERIFIED / UNVERIFIED / NEEDS_REVIEW). This enum deliberately avoids that
+    name. AI verification must never emit FRAUD / CHEATING / ILLEGAL.
+    """
+
+    MATCH = "MATCH"
+    POTENTIAL_MISMATCH = "POTENTIAL_MISMATCH"
+    COULD_NOT_VERIFY = "COULD_NOT_VERIFY"
+    MANUAL_REVIEW = "MANUAL_REVIEW"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class EvidenceType(StrEnum):
+    """Kind of artefact an EvidenceReference points at. Not a generated image."""
+
+    OCR_REGION = "OCR_REGION"
+    PRODUCT_IMAGE = "PRODUCT_IMAGE"
+    MEASUREMENT = "MEASUREMENT"
+    USER_NOTE = "USER_NOTE"
+    DOCUMENT = "DOCUMENT"
+    OTHER = "OTHER"
+
+
+# ---------------------------------------------------------------------------
+# Phase 12 image-intake / OCR vocabularies.
+#
+# These describe the scan -> image-quality -> preprocessing -> OCR pipeline that
+# feeds the Phase 11 OCR contract (app/schemas/ocr.py::OCRResult). They carry NO
+# legal meaning: an OCR or quality status is never a compliance verdict, and
+# NO_TEXT_DETECTED is never "a declaration is missing" (that decision belongs to
+# the later declaration-extraction phase, not Phase 12).
+# ---------------------------------------------------------------------------
+
+
+class ImageQualityStatus(StrEnum):
+    """Overall usability of a scanned image for OCR. Not a legal judgement."""
+
+    OK = "OK"
+    WARNING = "WARNING"  # usable, but OCR may be less reliable
+    UNUSABLE = "UNUSABLE"  # OCR is very unlikely to be reliable
+
+
+class BrightnessStatus(StrEnum):
+    ACCEPTABLE = "ACCEPTABLE"
+    TOO_DARK = "TOO_DARK"
+    TOO_BRIGHT = "TOO_BRIGHT"
+
+
+class ResolutionStatus(StrEnum):
+    OK = "OK"
+    TOO_SMALL = "TOO_SMALL"
+
+
+class OrientationStatus(StrEnum):
+    """Lightweight orientation state, read from EXIF only. No ML model here."""
+
+    OK = "OK"  # no rotation metadata, or already upright
+    CORRECTED = "CORRECTED"  # an EXIF rotation was applied to the OCR image
+    UNKNOWN = "UNKNOWN"  # could not determine; surfaced as a warning
+
+
+class OCRStatus(StrEnum):
+    """
+    Outcome of the OCR stage.
+
+    OCR failure is never legal non-compliance, and NO_TEXT_DETECTED is not the
+    same as a missing declaration.
+    """
+
+    SUCCESS = "SUCCESS"
+    LOW_CONFIDENCE = "LOW_CONFIDENCE"
+    NO_TEXT_DETECTED = "NO_TEXT_DETECTED"
+    PROCESSING_ERROR = "PROCESSING_ERROR"
+    INVALID_IMAGE = "INVALID_IMAGE"
+
+
+# ---------------------------------------------------------------------------
+# Phase 19 scan-orchestration vocabulary.
+#
+# Records what each stage of one unified scan did. This is operational status,
+# NOT a compliance verdict: a FAILED or SKIPPED stage is a gap in coverage the
+# result must surface honestly, never an implied COMPLIANT and never a violation.
+# ---------------------------------------------------------------------------
+
+
+class StageOutcome(StrEnum):
+    """How one orchestration stage finished."""
+
+    COMPLETED = "COMPLETED"  # the stage ran and produced its output
+    SKIPPED = "SKIPPED"  # the stage did not run (a needed input was absent)
+    FAILED = "FAILED"  # the stage errored; the scan continues with partial results
