@@ -2,10 +2,11 @@
 
 from fastapi import APIRouter
 
-from app.api import health, nutrition, scan
+from app.api import comparison, health, nutrition, scan
 from app.core.config import API_V1_PREFIX
 
 api_router = APIRouter(prefix=API_V1_PREFIX)
 api_router.include_router(health.router, tags=["health"])
+api_router.include_router(comparison.router, tags=["comparison"])
 api_router.include_router(nutrition.router, tags=["nutrition"])
 api_router.include_router(scan.router, tags=["scan"])

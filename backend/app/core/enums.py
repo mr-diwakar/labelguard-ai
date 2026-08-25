@@ -114,6 +114,73 @@ class ReportStatus(StrEnum):
     FAILED = "FAILED"
 
 
+# --- Multi-product nutrition comparison (Phase 13) ---------------------------
+# Deterministic, explainable ranking of already-extracted nutrition values.
+# This is an informational comparison, never a health verdict or medical claim.
+
+
+class NutritionParameter(StrEnum):
+    """Canonical nutrition parameters the comparison understands."""
+
+    CALORIES = "CALORIES"
+    SUGAR = "SUGAR"
+    ADDED_SUGAR = "ADDED_SUGAR"
+    PROTEIN = "PROTEIN"
+    CARBOHYDRATES = "CARBOHYDRATES"
+    FAT = "FAT"
+    SATURATED_FAT = "SATURATED_FAT"
+    TRANS_FAT = "TRANS_FAT"
+    FIBER = "FIBER"
+    SODIUM = "SODIUM"
+
+
+class ParameterDirection(StrEnum):
+    """Which way is preferable for a parameter. Fixed per parameter, never taken from a request."""
+
+    LOWER_BETTER = "LOWER_BETTER"
+    HIGHER_BETTER = "HIGHER_BETTER"
+
+
+class NutritionBasis(StrEnum):
+    """Reference basis of declared values. Products are only comparable on a shared basis."""
+
+    PER_100G = "PER_100G"
+    PER_SERVING = "PER_SERVING"
+    UNKNOWN = "UNKNOWN"
+
+
+class ComparisonPriority(StrEnum):
+    """Consumer-selectable priorities. Each maps to a (parameter, direction) during scoring."""
+
+    LOWER_CALORIES = "LOWER_CALORIES"
+    LOWER_SUGAR = "LOWER_SUGAR"
+    LOWER_ADDED_SUGAR = "LOWER_ADDED_SUGAR"
+    HIGHER_PROTEIN = "HIGHER_PROTEIN"
+    LOWER_CARBOHYDRATES = "LOWER_CARBOBYDRATES"
+    LOWER_FAT = "LOWER_FAT"
+    LOWER_SATURATED_FAT = "LOWER_SATURATED_FAT"
+    LOWER_TRANS_FAT = "LOWER_TRANS_FAT"
+    HIGHER_FIBER = "HIGHER_FIBER"
+    LOWER_SODIUM = "LOWER_SODIUM"
+
+
+class ComparisonOutcome(StrEnum):
+    """Per-product ranking outcome. Not a health verdict."""
+
+    RANKED = "RANKED"
+    TIED = "TIED"
+    COULD_NOT_RANK = "COULD_NOT_RANK"
+    SINGLE_PRODUCT = "SINGLE_PRODUCT"
+
+
+class ComparisonStatus(StrEnum):
+    """Overall state of a comparison result."""
+
+    COMPLETED = "COMPLETED"
+    INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
+    SINGLE_PRODUCT = "SINGLE_PRODUCT"
+
+
 # ---------------------------------------------------------------------------
 # Phase 11 integration-contract vocabularies.
 #
