@@ -37,6 +37,7 @@ from app.core.enums import (
 from app.core.exceptions import AppError
 from app.imaging.pipeline import process_scan
 from app.ocr.paddle_adapter import PaddleOCRProvider
+from app.ocr.rapid_adapter import RapidOCRProvider
 from app.ocr.provider import RawTextRegion
 from app.schemas.contracts.scan import ScanResult
 from app.schemas.ocr import OCRResult
@@ -174,7 +175,8 @@ def test_ocr_failure_yields_manual_review_not_non_compliance():
 
 
 @pytest.mark.skipif(
-    PaddleOCRProvider.available(), reason="an OCR engine is installed, so the photo can be read"
+    PaddleOCRProvider.available() or RapidOCRProvider.available(),
+    reason="an OCR engine is installed, so the photo can be read",
 )
 def test_no_installed_ocr_engine_is_reported_not_hidden():
     # The actual state of this environment: no recognition engine, so a real photo cannot

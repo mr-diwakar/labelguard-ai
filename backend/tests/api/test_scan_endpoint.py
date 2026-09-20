@@ -21,7 +21,7 @@ from pydantic import ValidationError
 
 from app.api.scan import create_scan, get_compliance_engine, router
 from app.compliance.engine import ComplianceEngine
-from app.compliance.rule_loader import RuleLoader
+from app.compliance.rule_loader import PrototypeFallbackResolver, RuleLoader
 from app.core.enums import (
     ComplianceStatus,
     DetectionStatus,
@@ -192,6 +192,7 @@ def test_get_compliance_engine_builds_db_backed_engine_without_connecting():
     engine = get_compliance_engine(session=sentinel)
 
     assert isinstance(engine, ComplianceEngine)
-    assert isinstance(engine.resolver, RuleLoader)
+    assert isinstance(engine.resolver, PrototypeFallbackResolver)
+    assert isinstance(engine.resolver.primary, RuleLoader)
     # Built lazily: the session is held as-is; no query or connection was made.
     assert engine.resolver.repository.session is sentinel

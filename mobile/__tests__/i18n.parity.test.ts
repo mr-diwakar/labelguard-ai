@@ -119,6 +119,10 @@ describe('runtime-emitted keys exist in every locale', () => {
     'live.errorNetwork',
     'live.errorTimeout',
     'live.errorHttp',
+    'live.errorNotFound',
+    'live.errorInvalidImage',
+    'live.errorServer',
+    'live.errorValidation',
     'live.errorMalformed',
     'live.unnamedProduct',
     // camera capture + permission states

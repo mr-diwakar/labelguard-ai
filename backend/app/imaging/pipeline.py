@@ -25,6 +25,7 @@ from app.imaging.preprocessing import ImagePreprocessor
 from app.imaging.quality import assess_quality
 from app.ocr.paddle_adapter import PaddleOCRProvider
 from app.ocr.provider import OCRProvider
+from app.ocr.rapid_adapter import RapidOCRProvider
 from app.ocr.service import OCRService
 from app.schemas.imaging import OCRResponse, ScanProcessingResult
 
@@ -33,11 +34,13 @@ def _resolve_provider(
     provider: OCRProvider | None,
     settings: Settings,
 ) -> OCRProvider | None:
-    """Explicit provider wins; otherwise use PaddleOCR only if it is installed."""
+    """Explicit provider wins; otherwise PaddleOCR, then RapidOCR if installed."""
     if provider is not None:
         return provider
     if PaddleOCRProvider.available():
         return PaddleOCRProvider(settings=settings)
+    if RapidOCRProvider.available():
+        return RapidOCRProvider(settings=settings)
     return None
 
 

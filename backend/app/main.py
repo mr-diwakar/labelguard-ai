@@ -19,10 +19,32 @@ from app.database.connection import dispose_engine
 
 logger = get_logger("app")
 
+# Expo web origins used on this PC during local development. Native Expo Go does
+# not send CORS; these only matter when the UI is opened in a browser.
+_DEV_EXPO_ORIGINS = (
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
+    "http://localhost:19006",
+    "http://127.0.0.1:19006",
+)
+
+
+def _development_cors_origins(settings: Settings) -> list[str]:
+    origins = list(settings.cors_origins)
+    if settings.is_development:
+        for origin in _DEV_EXPO_ORIGINS:
+            if origin not in origins:
+                origins.append(origin)
+    return origins
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    logger.info("stage=startup")
+    runtime = getattr(_app.state, "settings", None)
+    if runtime is not None:
+        logger.info("stage=startup host=%s port=%s", runtime.host, runtime.port)
+    else:
+        logger.info("stage=startup")
     yield
     dispose_engine()
     logger.info("stage=shutdown")
@@ -46,10 +68,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.add_middleware(RequestLoggingMiddleware)
 
-    if settings.cors_origins:
+    cors_origins = _development_cors_origins(settings)
+    if cors_origins:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=settings.cors_origins,
+            allow_origins=cors_origins,
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],

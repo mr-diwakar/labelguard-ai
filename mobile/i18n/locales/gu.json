@@ -302,6 +302,10 @@
     "errorNetwork": "સર્વર સુધી પહોંચી શકાયું નથી. બૅકએન્ડ ચાલી રહ્યું છે કે નહીં તપાસો અને ફરી પ્રયાસ કરો.",
     "errorTimeout": "સ્કૅનને પ્રતિસાદ આપવામાં ઘણો સમય લાગ્યો. કૃપા કરી ફરી પ્રયાસ કરો.",
     "errorHttp": "સર્વર આ સ્કૅન પ્રક્રિયા કરી શક્યું નથી. કૃપા કરી ફરી પ્રયાસ કરો.",
+    "errorNotFound": "Scan service was not found. Check the API URL and try again.",
+    "errorInvalidImage": "Invalid image. Please try another photo.",
+    "errorServer": "The server had an internal error. Please try again.",
+    "errorValidation": "The server rejected this request. Please try another photo.",
     "errorMalformed": "સર્વરનો પ્રતિસાદ વાંચી શકાયો નથી. કૃપા કરી ફરી પ્રયાસ કરો.",
     "stageImage": "ફોટો તપાસ",
     "stageOcr": "લેબલનું લખાણ વાંચવું"

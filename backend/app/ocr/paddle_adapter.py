@@ -68,8 +68,16 @@ class PaddleOCRProvider:
 
     def recognize(self, image: np.ndarray) -> list[RawTextRegion]:
         engine = self._ensure_engine()
-        raw = engine.ocr(image, cls=True)
-        return _parse_paddle_result(raw)
+        if hasattr(engine, "ocr"):
+            try:
+                raw = engine.ocr(image, cls=True)
+            except TypeError:
+                raw = engine.ocr(image)
+            return _parse_paddle_result(raw)
+        if hasattr(engine, "predict"):
+            raw = engine.predict(image)
+            return _parse_paddle_result(raw)
+        raise RuntimeError("Unsupported PaddleOCR API")
 
 
 def _parse_paddle_result(raw: object) -> list[RawTextRegion]:

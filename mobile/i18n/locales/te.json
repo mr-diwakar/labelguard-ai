@@ -302,6 +302,10 @@
     "errorNetwork": "సర్వర్‌ను చేరుకోలేకపోయింది. బ్యాకెండ్ నడుస్తోందో లేదో తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
     "errorTimeout": "స్కాన్ స్పందించడానికి చాలా సమయం పట్టింది. దయచేసి మళ్లీ ప్రయత్నించండి.",
     "errorHttp": "సర్వర్ ఈ స్కాన్‌ను ప్రాసెస్ చేయలేకపోయింది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "errorNotFound": "Scan service was not found. Check the API URL and try again.",
+    "errorInvalidImage": "Invalid image. Please try another photo.",
+    "errorServer": "The server had an internal error. Please try again.",
+    "errorValidation": "The server rejected this request. Please try another photo.",
     "errorMalformed": "సర్వర్ ప్రతిస్పందనను చదవలేకపోయింది. దయచేసి మళ్లీ ప్రయత్నించండి.",
     "stageImage": "ఫోటో తనిఖీ",
     "stageOcr": "లేబుల్ వచనం చదవడం"

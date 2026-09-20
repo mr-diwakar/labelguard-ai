@@ -17,7 +17,9 @@ pytest.importorskip("numpy")
 from app.core.enums import ImageQualityStatus, OCRStatus
 from app.core.exceptions import AppError
 from app.imaging.pipeline import process_scan
+from app.ocr.paddle_adapter import PaddleOCRProvider
 from app.ocr.provider import RawTextRegion
+from app.ocr.rapid_adapter import RapidOCRProvider
 from app.schemas.imaging import ScanProcessingResult
 from tests.fixtures.images import (
     StubOCRProvider,
@@ -57,12 +59,28 @@ def test_process_scan_rejects_bad_inputs():
         assert exc.value.code == code
 
 
+_ENGINE_INSTALLED = PaddleOCRProvider.available() or RapidOCRProvider.available()
+
+
+@pytest.mark.skipif(_ENGINE_INSTALLED, reason="an OCR engine is installed, so the default provider can read the photo")
 def test_process_scan_without_provider_reports_processing_error():
-    # No provider injected and PaddleOCR not installed -> graceful, no crash.
+    # No provider injected and no engine installed -> graceful, no crash.
     result = process_scan(clear_image_bytes("PNG"), provider=None)
     assert result.ocr.status is OCRStatus.PROCESSING_ERROR
     assert result.ocr.warnings
     # Quality is still computed independently of the OCR failure.
+    assert result.image_quality is not None
+
+
+@pytest.mark.skipif(not _ENGINE_INSTALLED, reason="no OCR engine installed")
+def test_process_scan_uses_installed_engine_when_no_provider_injected():
+    result = process_scan(clear_image_bytes("PNG"), provider=None)
+    assert result.ocr.provider
+    assert result.ocr.status in {
+        OCRStatus.SUCCESS,
+        OCRStatus.LOW_CONFIDENCE,
+        OCRStatus.NO_TEXT_DETECTED,
+    }
     assert result.image_quality is not None
 
 

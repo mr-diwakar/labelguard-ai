@@ -25,14 +25,21 @@ export class ScanApiError extends Error {
   readonly kind: ScanApiErrorKind;
   /** HTTP status, present only when `kind === 'http'`. */
   readonly status?: number;
+  /** Backend error envelope code, when one could be parsed (`EMPTY_IMAGE`, …). */
+  readonly code?: string;
   /** Server-supplied detail string, when one could be parsed. */
   readonly detail?: string;
 
-  constructor(kind: ScanApiErrorKind, message: string, opts: { status?: number; detail?: string } = {}) {
+  constructor(
+    kind: ScanApiErrorKind,
+    message: string,
+    opts: { status?: number; code?: string; detail?: string } = {},
+  ) {
     super(message);
     this.name = 'ScanApiError';
     this.kind = kind;
     this.status = opts.status;
+    this.code = opts.code;
     this.detail = opts.detail;
   }
 }
@@ -44,26 +51,29 @@ export interface PostScanOptions {
   signal?: AbortSignal;
 }
 
-/** Best-effort extraction of a human-readable detail from an error response body. */
-function detailFromErrorBody(body: unknown): string | undefined {
+/** Best-effort extraction of a human-readable detail and code from an error body. */
+function detailFromErrorBody(body: unknown): { detail?: string; code?: string } {
   if (!body || typeof body !== 'object') {
-    return undefined;
+    return {};
   }
   const record = body as Record<string, unknown>;
   // FastAPI validation errors and our own handler both use `detail`;
   // a structured `{ error: { code, message } }` envelope is also supported.
   const error = record.error;
   if (error && typeof error === 'object') {
-    const message = (error as Record<string, unknown>).message;
+    const envelope = error as Record<string, unknown>;
+    const message = envelope.message;
+    const code = typeof envelope.code === 'string' ? envelope.code : undefined;
     if (typeof message === 'string' && message.length > 0) {
-      return message;
+      return { detail: message, code };
     }
+    return { code };
   }
   const detail = record.detail;
   if (typeof detail === 'string' && detail.length > 0) {
-    return detail;
+    return { detail };
   }
-  return undefined;
+  return {};
 }
 
 /**
@@ -112,7 +122,9 @@ async function sendScan(
       // Aborted by the caller's signal, not our timeout.
       throw new ScanApiError('network', 'Scan request was cancelled.');
     }
-    throw new ScanApiError('network', 'Could not reach the scan service.');
+    throw new ScanApiError('network', 'Could not reach the scan service.', {
+      detail: `Could not connect to ${url}`,
+    });
   } finally {
     clearTimeout(timeoutId);
     if (options.signal) {
@@ -122,13 +134,18 @@ async function sendScan(
 
   if (!response.ok) {
     let detail: string | undefined;
+    let code: string | undefined;
     try {
-      detail = detailFromErrorBody(await response.json());
+      const parsed = detailFromErrorBody(await response.json());
+      detail = parsed.detail;
+      code = parsed.code;
     } catch {
       detail = undefined;
+      code = undefined;
     }
     throw new ScanApiError('http', `Scan service returned HTTP ${response.status}.`, {
       status: response.status,
+      code,
       detail,
     });
   }
@@ -185,15 +202,31 @@ function imageMimeType(image: CapturedImage): string {
  * `Content-Type` header is deliberately NOT set so the runtime can generate the
  * multipart boundary itself.
  */
+async function imageFormPart(image: CapturedImage, mimeType: string, extension: string): Promise<Blob> {
+  const uri = image.uri;
+  const filename = `label.${extension}`;
+  // blob:/data:/http(s): come from Expo web. Fetch the bytes so FastAPI gets a
+  // real file part — web FormData cannot use React Native's { uri, name, type }.
+  if (
+    uri.startsWith('blob:') ||
+    uri.startsWith('data:') ||
+    uri.startsWith('http://') ||
+    uri.startsWith('https://')
+  ) {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type || mimeType });
+  }
+
+  // React Native file:// or content:// — the runtime's own FormData file shape.
+  return { uri, name: filename, type: mimeType } as unknown as Blob;
+}
+
 export async function postScanImage(image: CapturedImage, options: PostScanOptions = {}): Promise<ScanResult> {
   const mimeType = imageMimeType(image);
-  const extension = mimeType.split('/')[1];
+  const extension = mimeType.split('/')[1] ?? 'jpg';
   const form = new FormData();
-  form.append('image', {
-    uri: image.uri,
-    name: `label.${extension}`,
-    type: mimeType,
-  } as unknown as Blob);
+  form.append('image', await imageFormPart(image, mimeType, extension));
 
   return sendScan(
     SCAN_IMAGE_ENDPOINT,

@@ -1,13 +1,56 @@
 """Read-side helper for later engine phases. No FastAPI imports."""
 
+from __future__ import annotations
+
+import json
 from datetime import date
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
 from app.compliance.repository import LegalRuleRepository
+from app.compliance.resolver import StaticRuleResolver
 from app.compliance.selection import evaluate_applicability
+from app.core.logging_config import get_logger
 from app.database.models.legal_rule import LegalRule
 from app.schemas.applicability import ApplicabilityReport, ProductContext
+from app.schemas.legal_rule import LegalRuleRecord
+
+logger = get_logger("compliance")
+
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_PROTOTYPE_RULES_PATH = _REPO_ROOT / "legal-rules" / "2011" / "rules.json"
+
+
+def load_prototype_rule_records(path: Path | None = None) -> list[LegalRuleRecord]:
+    """Load the committed 2011 prototype rules. Used when PostgreSQL is unreachable."""
+    document = json.loads((path or _PROTOTYPE_RULES_PATH).read_text(encoding="utf-8"))
+    return [LegalRuleRecord.model_validate(item) for item in document["rules"]]
+
+
+class PrototypeFallbackResolver:
+    """DB-backed resolver that falls back to the prototype JSON, never to a fake verdict."""
+
+    def __init__(self, primary: RuleLoader) -> None:
+        self.primary = primary
+        self._fallback: StaticRuleResolver | None = None
+
+    @property
+    def repository(self) -> LegalRuleRepository:
+        return self.primary.repository
+
+    def resolve(self, context: ProductContext) -> ApplicabilityReport:
+        try:
+            return self.primary.resolve(context)
+        except Exception as exc:
+            logger.warning(
+                "stage=rule_loader event=db_unavailable fallback=prototype_json error=%s",
+                type(exc).__name__,
+            )
+            logger.debug("stage=rule_loader fallback_detail", exc_info=exc)
+            if self._fallback is None:
+                self._fallback = StaticRuleResolver(load_prototype_rule_records())
+            return self._fallback.resolve(context)
 
 
 class RuleLoader:

@@ -48,3 +48,15 @@ def test_cors_origins_accepts_comma_separated_string() -> None:
     settings = Settings(cors_origins="http://localhost:8081, http://localhost:8082")
 
     assert settings.cors_origins == ["http://localhost:8081", "http://localhost:8082"]
+
+
+def test_cors_origins_empty_string_does_not_crash() -> None:
+    settings = Settings(cors_origins="")
+
+    assert settings.cors_origins == []
+
+
+def test_cors_origins_accepts_json_list_string() -> None:
+    settings = Settings(cors_origins='["http://localhost:8081","http://127.0.0.1:8081"]')
+
+    assert settings.cors_origins == ["http://localhost:8081", "http://127.0.0.1:8081"]

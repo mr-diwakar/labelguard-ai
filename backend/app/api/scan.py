@@ -24,7 +24,7 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from app.compliance.engine import ComplianceEngine
-from app.compliance.rule_loader import RuleLoader
+from app.compliance.rule_loader import PrototypeFallbackResolver, RuleLoader
 from app.core.enums import (
     EvidenceType,
     ImageQualityStatus,
@@ -54,7 +54,7 @@ def get_compliance_engine(session: Session = Depends(get_db)) -> ComplianceEngin
     rather than raising.
     """
 
-    return ComplianceEngine(RuleLoader(session))
+    return ComplianceEngine(PrototypeFallbackResolver(RuleLoader(session)))
 
 
 @router.post(

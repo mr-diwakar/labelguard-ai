@@ -42,16 +42,29 @@ const STAGE_OUTCOME_PRESENTATION = {
   FAILED: { glyph: '⚠', tint: colors.warning, statusKey: 'live.stageFailed' },
 } as const;
 
+const INVALID_IMAGE_CODES = new Set([
+  'EMPTY_IMAGE',
+  'IMAGE_TOO_LARGE',
+  'UNSUPPORTED_FORMAT',
+  'INVALID_DIMENSIONS',
+  'CORRUPTED_IMAGE',
+]);
+
 function errorMessageKey(error: ScanApiError): string {
   switch (error.kind) {
     case 'network':
       return 'live.errorNetwork';
     case 'timeout':
       return 'live.errorTimeout';
-    case 'http':
-      return 'live.errorHttp';
     case 'malformed':
       return 'live.errorMalformed';
+    case 'http':
+      if (error.status === 404) return 'live.errorNotFound';
+      if (error.status === 500) return 'live.errorServer';
+      if (error.status === 413 || error.status === 415) return 'live.errorInvalidImage';
+      if (error.code && INVALID_IMAGE_CODES.has(error.code)) return 'live.errorInvalidImage';
+      if (error.status === 400 || error.status === 422) return 'live.errorValidation';
+      return 'live.errorHttp';
     default:
       return 'live.errorNetwork';
   }

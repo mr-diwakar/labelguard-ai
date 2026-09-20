@@ -71,6 +71,17 @@ describe('postScan — error mapping', () => {
     const err = await postScan(REQUEST).catch((e) => e);
     expect(err.kind).toBe('http');
     expect(err.detail).toBe('engine down');
+    expect(err.code).toBe('X');
+  });
+
+  it('maps HTTP 404 to kind "http" with status 404', async () => {
+    (global as { fetch?: unknown }).fetch = jest.fn(async () =>
+      jsonResponse({ error: { code: 'NOT_FOUND', message: 'missing' } }, { ok: false, status: 404 }),
+    );
+    const err = await postScan(REQUEST).catch((e) => e);
+    expect(err.kind).toBe('http');
+    expect(err.status).toBe(404);
+    expect(err.code).toBe('NOT_FOUND');
   });
 
   it('maps a fetch TypeError (unreachable server) to kind "network"', async () => {
@@ -80,6 +91,7 @@ describe('postScan — error mapping', () => {
     const err = await postScan(REQUEST).catch((e) => e);
     expect(err).toBeInstanceOf(ScanApiError);
     expect(err.kind).toBe('network');
+    expect(err.detail).toContain(SCAN_ENDPOINT);
   });
 
   it('maps an unreadable 2xx body to kind "malformed"', async () => {
