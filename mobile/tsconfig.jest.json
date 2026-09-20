@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "strict": true,
     "isolatedModules": false,
-    "noEmit": false
+    "noEmit": false,
+    "types": ["jest", "node"]
   },
   "include": ["api", "data", "types", "i18n", "__tests__"]
 }

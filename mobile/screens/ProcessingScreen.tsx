@@ -109,8 +109,13 @@ export function ProcessingScreen({ navigation, route }: ProcessingScreenProps) {
         const inspection = scanResultToInspection(result, {
           source: 'API',
           fallbackProductName: tRef.current('live.unnamedProduct'),
+          sourceImageUri: imageUri,
         });
-        putInspection(inspection, imageUri ? undefined : demoKey);
+        putInspection(
+          inspection,
+          imageUri ? undefined : demoKey,
+          imageUri ? { uri: imageUri, format: imageFormat } : undefined,
+        );
         setStages(result.stages);
         setInspectionId(inspection.id);
         setPhase('done');
@@ -165,8 +170,16 @@ export function ProcessingScreen({ navigation, route }: ProcessingScreenProps) {
       {phase === 'done' && (
         <>
           <Surface style={styles.card}>
-            <Text style={styles.completeTitle}>{t('processing.completeTitle')}</Text>
-            <Text style={styles.completeDescription}>{t('processing.completeDescription')}</Text>
+            <Text style={styles.completeTitle}>
+              {t(stages.some((stage) => stage.status === 'FAILED')
+                ? 'processing.partialTitle'
+                : 'processing.completeTitle')}
+            </Text>
+            <Text style={styles.completeDescription}>
+              {t(stages.some((stage) => stage.status === 'FAILED')
+                ? 'processing.partialDescription'
+                : 'processing.completeDescription')}
+            </Text>
             <View style={styles.stageList}>
               {stages.map((stage) => {
                 const presentation = STAGE_OUTCOME_PRESENTATION[stage.status];

@@ -27,7 +27,13 @@ pytest.importorskip("cv2")
 pytest.importorskip("numpy")
 
 from app.api.scan import router, scan_from_processed_image
-from app.core.enums import ComplianceStatus, ImageQualityStatus, OCRStatus, StageOutcome
+from app.core.enums import (
+    ComplianceStatus,
+    EvidenceType,
+    ImageQualityStatus,
+    OCRStatus,
+    StageOutcome,
+)
 from app.core.exceptions import AppError
 from app.imaging.pipeline import process_scan
 from app.ocr.paddle_adapter import PaddleOCRProvider
@@ -119,6 +125,22 @@ def test_captured_photo_produces_a_scan_result_through_the_existing_pipeline():
     assert stages["ocr"] is StageOutcome.COMPLETED
     assert stages["extraction"] is StageOutcome.COMPLETED
     assert stages["legal"] is StageOutcome.COMPLETED
+
+    # --- the evidence leg carries the regions actually read off this photo ---
+    assert len(result.evidence) == len(_LABEL_REGIONS)
+    notes = {item.note for item in result.evidence}
+    assert notes == {region.text for region in _LABEL_REGIONS}
+    assert all(item.evidence_type is EvidenceType.OCR_REGION for item in result.evidence)
+    assert all(item.bbox is not None for item in result.evidence)  # real pixel boxes
+
+
+def test_no_evidence_is_invented_when_the_label_could_not_be_read():
+    processed = process_scan(
+        clear_image_bytes("PNG"), provider=StubOCRProvider(raises=RuntimeError("engine crashed"))
+    )
+    result = scan_from_processed_image(processed, engine=_engine(), inspection_datetime=INSPECTION_AT)
+
+    assert result.evidence == []
 
 
 def test_result_never_claims_the_camera_measured_the_package_contents():

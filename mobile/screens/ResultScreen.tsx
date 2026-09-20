@@ -16,7 +16,7 @@ import { Surface } from '../components/Surface';
 import { VerificationStatusBadge } from '../components/VerificationStatusBadge';
 import { VERIFICATION_PRESENTATION } from '../constants/verification';
 import { DEFAULT_DEMO_KEY } from '../data/demoScans';
-import { getDemoKeyFor, getInspection } from '../data/inspectionStore';
+import { getDemoKeyFor, getInspection, getSourceImageFor } from '../data/inspectionStore';
 import { ResultScreenProps } from '../navigation/types';
 import { colors, radii, spacing, typography } from '../theme';
 import { VerificationOutcome } from '../types/inspection';
@@ -40,7 +40,9 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
     );
   }
 
-  const { assessment, verification } = inspection;
+  const { assessment, verification, guidance } = inspection;
+  const sourceImage = getSourceImageFor(inspection.id);
+  const demoKey = getDemoKeyFor(inspection.id);
 
   const outcome: VerificationOutcome = verification?.status ?? 'COULD_NOT_VERIFY';
   const verificationPresentation = VERIFICATION_PRESENTATION[outcome];
@@ -93,6 +95,58 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
             </View>
           </Surface>
         </FadeIn>
+
+        {guidance && (
+          <FadeIn delay={30} style={styles.section}>
+            <Surface>
+              <Text style={styles.cardTitle}>{t('result.guidanceTitle')}</Text>
+              {guidance.headline ? (
+                <Text style={styles.cardDescription}>{guidance.headline}</Text>
+              ) : null}
+              {guidance.whatWeFound.length > 0 && (
+                <View style={styles.guidanceBlock}>
+                  <Text style={styles.compareLabel}>{t('result.guidanceFound')}</Text>
+                  {guidance.whatWeFound.map((line) => (
+                    <Text key={line} style={styles.helper}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              )}
+              {guidance.whatIsUncertain.length > 0 && (
+                <View style={styles.guidanceBlock}>
+                  <Text style={styles.compareLabel}>{t('result.guidanceUncertain')}</Text>
+                  {guidance.whatIsUncertain.map((line) => (
+                    <Text key={line} style={styles.helper}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              )}
+              {guidance.whatYouCanDoNext.length > 0 && (
+                <View style={styles.guidanceBlock}>
+                  <Text style={styles.compareLabel}>{t('result.guidanceNext')}</Text>
+                  {guidance.whatYouCanDoNext.map((line) => (
+                    <Text key={line} style={styles.helper}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              )}
+              {guidance.limitations.length > 0 && (
+                <View style={styles.guidanceBlock}>
+                  <Text style={styles.compareLabel}>{t('result.guidanceLimitations')}</Text>
+                  {guidance.limitations.map((line) => (
+                    <Text key={line} style={styles.helper}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              )}
+              {guidance.disclaimer ? <Text style={styles.ruleReference}>{guidance.disclaimer}</Text> : null}
+            </Surface>
+          </FadeIn>
+        )}
 
         {/* Priority 2 — Label-to-product verification, with evidence entry points. */}
         <FadeIn delay={60} style={styles.section}>
@@ -165,9 +219,12 @@ export function ResultScreen({ navigation, route }: ResultScreenProps) {
                 icon="refresh-outline"
                 variant="outline"
                 onPress={() =>
-                  navigation.navigate('Processing', {
-                    demoKey: getDemoKeyFor(inspection.id) ?? DEFAULT_DEMO_KEY,
-                  })
+                  navigation.navigate(
+                    'Processing',
+                    sourceImage
+                      ? { image: sourceImage }
+                      : { demoKey: demoKey ?? DEFAULT_DEMO_KEY },
+                  )
                 }
                 fullWidth
                 style={styles.actionButton}
@@ -282,6 +339,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     marginTop: spacing.sm,
+  },
+  guidanceBlock: {
+    marginTop: spacing.md,
   },
   compareBlock: {
     marginTop: spacing.lg,

@@ -111,6 +111,8 @@
     "done": "પૂર્ણ",
     "completeTitle": "મૂલ્યાંકન તૈયાર",
     "completeDescription": "સ્વયંસંચાલિત મૂલ્યાંકન પૂર્ણ. મેન્યુઅલ ચકાસણીની સલાહ છે.",
+    "partialTitle": "મૂલ્યાંકન અધૂરું",
+    "partialDescription": "કેટલાક તબક્કા નિષ્ફળ ગયા અથવા છોડાયા. ખરેખર શું નક્કી થયું તે પરિણામમાં જુઓ.",
     "viewResult": "પરિણામ જુઓ",
     "viewEvidence": "પુરાવા જુઓ",
     "cancel": "રદ કરો",
@@ -142,7 +144,12 @@
     "report": "સાચવો / રિપોર્ટ",
     "declarationDetected": "{{label}} મળ્યું",
     "declarationIssue": "{{label}} — સંભવિત સમસ્યા",
-    "declarationReview": "{{label}} — મેન્યુઅલ સમીક્ષા જરૂરી"
+    "declarationReview": "{{label}} — મેન્યુઅલ સમીક્ષા જરૂરી",
+    "guidanceTitle": "આનો અર્થ",
+    "guidanceFound": "શું મળ્યું",
+    "guidanceUncertain": "શું અનિશ્ચિત છે",
+    "guidanceNext": "આગળ તમે શું કરી શકો",
+    "guidanceLimitations": "મર્યાદાઓ"
   },
   "verification": {
     "matchBadge": "મેળ",
@@ -197,6 +204,7 @@
     "emptyReview": "સમીક્ષા માટે કંઈ ચિહ્નિત નથી.",
     "typeProductImage": "ઉત્પાદન ફોટો",
     "typeLabelImage": "લેબલ ફોટો",
+    "capturedLabel": "કેપ્ચર કરેલ લેબલ ફોટો",
     "typeHighlighted": "ચિહ્નિત વિસ્તાર",
     "typeMeasurement": "માપ",
     "typeNote": "નોંધ",

@@ -30,7 +30,16 @@
           "cameraPermission": "LabelGuard uses the camera to photograph the product label it checks.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      "expo-font"
     ]
   }
 }

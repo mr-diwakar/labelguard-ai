@@ -197,10 +197,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   camera: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   previewFallback: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,

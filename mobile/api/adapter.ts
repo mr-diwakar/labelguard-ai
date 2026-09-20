@@ -26,6 +26,7 @@
 import type {
   AssessmentItem,
   ComplianceAssessment,
+  ConsumerGuidance,
   EvidenceReference,
   EvidenceType as ApiEvidenceType,
   MeasuredValue,
@@ -34,6 +35,7 @@ import type {
   VerificationResult as ApiVerificationResult,
 } from './types';
 import type {
+  ConsumerGuidanceView,
   DeclarationCheck,
   EvidenceItem,
   EvidenceType,
@@ -53,6 +55,8 @@ export interface ScanAdapterOptions {
   source?: 'DEMO' | 'API';
   /** Shown as the product name when the result carries none. */
   fallbackProductName?: string;
+  /** Local file URI of the photo that produced this scan, attached as label evidence. */
+  sourceImageUri?: string;
 }
 
 // --------------------------------------------------------------------------- //
@@ -268,9 +272,40 @@ function evidenceRefToItem(ref: EvidenceReference, fallbackTime: string): Eviden
   };
 }
 
-function collectEvidence(result: ScanResult, fallbackTime: string): EvidenceItem[] {
+function guidanceToView(guidance: ConsumerGuidance | null | undefined): ConsumerGuidanceView | undefined {
+  if (!guidance) {
+    return undefined;
+  }
+
+  return {
+    headline: guidance.headline || undefined,
+    whatWeFound: guidance.what_we_found ?? [],
+    whatIsUncertain: guidance.what_is_uncertain ?? [],
+    whatYouCanDoNext: guidance.what_you_can_do_next ?? [],
+    limitations: guidance.limitations ?? [],
+    disclaimer: guidance.disclaimer || undefined,
+  };
+}
+
+function collectEvidence(
+  result: ScanResult,
+  fallbackTime: string,
+  sourceImageUri?: string,
+): EvidenceItem[] {
   const seen = new Set<string>();
   const items: EvidenceItem[] = [];
+
+  if (sourceImageUri) {
+    const capturedId = `${result.scan_id}-captured-label`;
+    seen.add(capturedId);
+    items.push({
+      id: capturedId,
+      type: 'LABEL_IMAGE',
+      titleKey: 'evidence.capturedLabel',
+      imageRef: sourceImageUri,
+      capturedAt: fallbackTime,
+    });
+  }
 
   const consider = (ref: EvidenceReference) => {
     if (seen.has(ref.evidence_id)) return;
@@ -308,7 +343,8 @@ export function scanResultToInspection(result: ScanResult, options: ScanAdapterO
 
   const { assessment, notice } = legalToAssessment(result.legal_assessment);
   const verification = verificationToResult(result.verification);
-  const evidence = collectEvidence(result, now);
+  const evidence = collectEvidence(result, now, options.sourceImageUri);
+  const guidance = guidanceToView(result.guidance);
 
   const notices = notice ? [notice] : [];
 
@@ -325,5 +361,6 @@ export function scanResultToInspection(result: ScanResult, options: ScanAdapterO
     source,
     notices: notices.length > 0 ? notices : undefined,
     warnings: result.warnings.length > 0 ? result.warnings : undefined,
+    guidance,
   };
 }

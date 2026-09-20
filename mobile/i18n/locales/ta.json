@@ -111,6 +111,8 @@
     "done": "முடிந்தது",
     "completeTitle": "மதிப்பீடு தயார்",
     "completeDescription": "தானியங்கி மதிப்பீடு முடிந்தது. கைமுறை சரிபார்ப்பு பரிந்துரைக்கப்படுகிறது.",
+    "partialTitle": "மதிப்பீடு முழுமையடையவில்லை",
+    "partialDescription": "சில நிலைகள் தோல்வியடைந்தன அல்லது தவிர்க்கப்பட்டன. உண்மையில் என்ன தீர்மானிக்கப்பட்டது என்பதை முடிவில் பார்க்கவும்.",
     "viewResult": "முடிவைப் பார்",
     "viewEvidence": "சாட்சியைப் பார்",
     "cancel": "ரத்து",
@@ -142,7 +144,12 @@
     "report": "சேமி / அறிக்கை",
     "declarationDetected": "{{label}} கண்டறியப்பட்டது",
     "declarationIssue": "{{label}} — சாத்தியமான சிக்கல்",
-    "declarationReview": "{{label}} — கைமுறை மறுஆய்வு தேவை"
+    "declarationReview": "{{label}} — கைமுறை மறுஆய்வு தேவை",
+    "guidanceTitle": "இதன் பொருள்",
+    "guidanceFound": "கண்டறியப்பட்டவை",
+    "guidanceUncertain": "உறுதியற்றவை",
+    "guidanceNext": "அடுத்து நீங்கள் செய்யக்கூடியவை",
+    "guidanceLimitations": "வரம்புகள்"
   },
   "verification": {
     "matchBadge": "பொருந்துகிறது",
@@ -197,6 +204,7 @@
     "emptyReview": "மறுஆய்வுக்கு எதுவும் குறிக்கப்படவில்லை.",
     "typeProductImage": "பொருள் புகைப்படம்",
     "typeLabelImage": "லேபிள் புகைப்படம்",
+    "capturedLabel": "படம்பிடிக்கப்பட்ட லேபிள் புகைப்படம்",
     "typeHighlighted": "குறிக்கப்பட்ட பகுதி",
     "typeMeasurement": "அளவீடு",
     "typeNote": "குறிப்பு",

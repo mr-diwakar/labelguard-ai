@@ -57,6 +57,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     _register_exception_handlers(app)
 
+    @app.get("/", tags=["health"])
+    def root() -> dict[str, str]:
+        """Phone browsers often open the host with no path. Point them at /health."""
+        return {
+            "name": settings.app_name,
+            "status": "ok",
+            "health": "/health",
+            "docs": "/docs",
+            "scan": "/api/v1/scan",
+            "scan_image": "/api/v1/scan/image",
+        }
+
     # Unprefixed copy for process supervisors and load balancers; clients use the
     # versioned route so the probe never breaks when the API version changes.
     app.include_router(health.router, tags=["health"])

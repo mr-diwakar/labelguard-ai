@@ -13,19 +13,29 @@
  * anything not found here falls back to the bundled demo records.
  */
 
-import { findMockInspection } from './mockInspections';
+import type { CapturedImage } from '../api/client';
+import { findMockInspection, mockInspections } from './mockInspections';
 import type { DemoScanKey } from './demoScans';
 import type { Inspection } from '../types/inspection';
 
 const liveInspections = new Map<string, Inspection>();
 /** Remembers which demo produced a stored inspection, so "Verify Again" can re-run it. */
 const demoKeyById = new Map<string, DemoScanKey>();
+/** Remembers the captured photo so "Verify Again" re-uploads it instead of a demo JSON. */
+const sourceImageById = new Map<string, CapturedImage>();
 
-/** Store a freshly-scanned inspection, optionally recording the demo key that produced it. */
-export function putInspection(inspection: Inspection, demoKey?: DemoScanKey): void {
+/** Store a freshly-scanned inspection, optionally recording how to re-run it. */
+export function putInspection(
+  inspection: Inspection,
+  demoKey?: DemoScanKey,
+  sourceImage?: CapturedImage,
+): void {
   liveInspections.set(inspection.id, inspection);
   if (demoKey) {
     demoKeyById.set(inspection.id, demoKey);
+  }
+  if (sourceImage) {
+    sourceImageById.set(inspection.id, sourceImage);
   }
 }
 
@@ -51,8 +61,26 @@ export function getDemoKeyFor(id: string): DemoScanKey | undefined {
   return demoKeyById.get(id);
 }
 
+/** The captured photo a stored inspection came from, if it was a camera scan. */
+export function getSourceImageFor(id: string): CapturedImage | undefined {
+  return sourceImageById.get(id);
+}
+
+/** Live scans first (newest first), then bundled demo records that were not overwritten. */
+export function listInspections(): Inspection[] {
+  const live = Array.from(liveInspections.values()).sort((a, b) =>
+    b.inspectedAt.localeCompare(a.inspectedAt),
+  );
+  const liveIds = new Set(live.map((item) => item.id));
+  const bundled = mockInspections
+    .map((item) => getInspection(item.id))
+    .filter((item): item is Inspection => item !== undefined && !liveIds.has(item.id));
+  return [...live, ...bundled];
+}
+
 /** Clears the store. Test-only helper; not used by the app. */
 export function resetInspectionStore(): void {
   liveInspections.clear();
   demoKeyById.clear();
+  sourceImageById.clear();
 }

@@ -111,6 +111,8 @@
     "done": "Complete",
     "completeTitle": "Assessment ready",
     "completeDescription": "Automated assessment complete. Manual verification recommended.",
+    "partialTitle": "Assessment incomplete",
+    "partialDescription": "Some pipeline stages failed or were skipped. Open the result to see what was actually determined.",
     "viewResult": "View Result",
     "viewEvidence": "View Evidence",
     "cancel": "Cancel",
@@ -142,7 +144,12 @@
     "report": "Save / Report",
     "declarationDetected": "{{label}} detected",
     "declarationIssue": "{{label}} — potential issue",
-    "declarationReview": "{{label}} — needs manual review"
+    "declarationReview": "{{label}} — needs manual review",
+    "guidanceTitle": "What this means",
+    "guidanceFound": "What was detected",
+    "guidanceUncertain": "What is uncertain",
+    "guidanceNext": "What you can do next",
+    "guidanceLimitations": "Limitations"
   },
   "verification": {
     "matchBadge": "MATCH",
@@ -197,6 +204,7 @@
     "emptyReview": "Nothing flagged for review.",
     "typeProductImage": "Product photo",
     "typeLabelImage": "Label photo",
+    "capturedLabel": "Captured label photo",
     "typeHighlighted": "Highlighted region",
     "typeMeasurement": "Measurement",
     "typeNote": "Note",

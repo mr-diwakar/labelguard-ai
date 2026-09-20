@@ -51,8 +51,10 @@ On macOS or Linux, activate with `source .venv/bin/activate` and copy the env fi
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+`0.0.0.0` accepts a phone on the same Wi-Fi. `127.0.0.1` is reachable only from this PC.
 
 Or:
 
@@ -128,7 +130,7 @@ Scan orchestration, OCR, authentication, evidence images, PDF, and live mobile i
 | --- | --- | --- |
 | `APP_NAME` | Title in OpenAPI docs | `LabelGuard AI` |
 | `APP_ENV` | `development`, `staging`, or `production` | `development` |
-| `HOST` | Bind address | `127.0.0.1` |
+| `HOST` | Bind address | `0.0.0.0` |
 | `PORT` | Bind port | `8000` |
 | `CORS_ORIGINS` | Comma-separated browser origins | empty (no CORS headers) |
 | `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` | `INFO` |

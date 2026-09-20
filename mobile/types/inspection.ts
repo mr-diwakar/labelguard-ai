@@ -65,6 +65,21 @@ export interface Inspection {
   notices?: string[];
   /** Raw backend warning strings (already human-readable), shown as-is when present. */
   warnings?: string[];
+  /**
+   * Consumer guidance already produced by the backend. Absent when the legal
+   * stage did not complete — never invented on the client.
+   */
+  guidance?: ConsumerGuidanceView;
+}
+
+/** Backend ConsumerGuidance, flattened to the strings the result screen can show. */
+export interface ConsumerGuidanceView {
+  headline?: string;
+  whatWeFound: string[];
+  whatIsUncertain: string[];
+  whatYouCanDoNext: string[];
+  limitations: string[];
+  disclaimer?: string;
 }
 
 export interface InspectionSummary {

@@ -25,11 +25,18 @@ from starlette.concurrency import run_in_threadpool
 
 from app.compliance.engine import ComplianceEngine
 from app.compliance.rule_loader import RuleLoader
-from app.core.enums import ImageQualityStatus, OCRStatus, ProductCategory, StageOutcome
+from app.core.enums import (
+    EvidenceType,
+    ImageQualityStatus,
+    OCRStatus,
+    ProductCategory,
+    StageOutcome,
+)
 from app.database.connection import get_db
 from app.imaging.pipeline import process_scan
 from app.pipeline.orchestrator import run_scan
 from app.schemas.contracts.context import InspectionContext
+from app.schemas.contracts.evidence import EvidenceReference
 from app.schemas.contracts.scan import ScanRequest, ScanResult, ScanStageStatus
 from app.schemas.imaging import ScanProcessingResult
 
@@ -106,6 +113,33 @@ _CAMERA_CANNOT_WEIGH_NOTE = (
     "measure the physical quantity inside a sealed package."
 )
 
+#: How many recognised regions are carried as evidence. A text-dense label can produce
+#: dozens; the rest are not silently dropped -- a warning reports the full count.
+_MAX_OCR_EVIDENCE = 20
+
+
+def _evidence_from_ocr(processed: ScanProcessingResult) -> list[EvidenceReference]:
+    """The regions actually read off the captured photo, as evidence references.
+
+    This is the only evidence a photo can honestly supply: each item points at real text
+    the OCR layer recognised, with the pixel box and confidence it reported. Nothing is
+    synthesised -- an OCR that returned nothing produces no evidence. The image itself is
+    never stored server-side (see ``app/imaging/intake.py``), so ``image_reference`` stays
+    unset rather than pointing at a file that does not exist.
+    """
+    return [
+        EvidenceReference(
+            evidence_id=f"ocr_region_{index}",
+            evidence_type=EvidenceType.OCR_REGION,
+            source=processed.ocr.provider,
+            bbox=list(region.bbox),
+            confidence=region.confidence,
+            note=region.text,
+        )
+        for index, region in enumerate(processed.ocr.regions[:_MAX_OCR_EVIDENCE])
+    ]
+
+
 
 def _label_readable(processed: ScanProcessingResult) -> bool | None:
     """Whether the photo genuinely yielded a readable label.
@@ -166,6 +200,12 @@ def _with_image_stages(
     warnings = [*processed.warnings, *processed.ocr.warnings]
     if label_readable is not True:
         warnings.append(_UNREADABLE_LABEL_WARNING)
+    total_regions = len(processed.ocr.regions)
+    if total_regions > _MAX_OCR_EVIDENCE:
+        warnings.append(
+            f"{total_regions} text regions were read from the label; the first "
+            f"{_MAX_OCR_EVIDENCE} are attached as evidence."
+        )
     warnings.append(_CAMERA_CANNOT_WEIGH_NOTE)
     warnings.extend(result.warnings)
 
@@ -239,11 +279,14 @@ def scan_from_processed_image(
         label_readable=readable,
     )
 
+    evidence = _evidence_from_ocr(processed)
+
     result = run_scan(
         scan_id=processed.scan_id,
         ocr_results=processed.ocr.regions,
         engine=engine,
         context=context,
+        evidence=evidence,
     )
 
     return _with_image_stages(result, processed, readable)

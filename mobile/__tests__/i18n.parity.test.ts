@@ -136,6 +136,14 @@ describe('runtime-emitted keys exist in every locale', () => {
     'processing.loadingTitle',
     'processing.loadingSubtitle',
     'processing.loadingSubtitleImage',
+    'processing.partialTitle',
+    'processing.partialDescription',
+    'result.guidanceTitle',
+    'result.guidanceFound',
+    'result.guidanceUncertain',
+    'result.guidanceNext',
+    'result.guidanceLimitations',
+    'evidence.capturedLabel',
   ];
 
   it.each(Object.keys(LOCALES))('%s defines every runtime-emitted key', (code) => {

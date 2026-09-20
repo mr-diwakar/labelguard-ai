@@ -218,4 +218,36 @@ describe('scanResultToInspection — evidence & top-level', () => {
     const out = scanResultToInspection(scanResult(), { now: NOW, source: 'DEMO' });
     expect(out.source).toBe('DEMO');
   });
+
+  it('maps backend guidance and attaches a captured label photo when given', () => {
+    const out = scanResultToInspection(
+      scanResult({
+        guidance: {
+          status: 'MANUAL_REVIEW',
+          headline: 'Check the label yourself',
+          what_we_found: ['MRP was readable'],
+          what_is_uncertain: ['Net quantity was unclear'],
+          what_you_can_do_next: ['Keep the packet'],
+          limitations: ['A photo cannot weigh the product'],
+          disclaimer: 'Not an official complaint.',
+        },
+      }),
+      { now: NOW, sourceImageUri: 'file:///label.jpg' },
+    );
+
+    expect(out.guidance).toEqual({
+      headline: 'Check the label yourself',
+      whatWeFound: ['MRP was readable'],
+      whatIsUncertain: ['Net quantity was unclear'],
+      whatYouCanDoNext: ['Keep the packet'],
+      limitations: ['A photo cannot weigh the product'],
+      disclaimer: 'Not an official complaint.',
+    });
+    expect(out.evidence?.[0]).toMatchObject({
+      id: 'scan-1-captured-label',
+      type: 'LABEL_IMAGE',
+      titleKey: 'evidence.capturedLabel',
+      imageRef: 'file:///label.jpg',
+    });
+  });
 });

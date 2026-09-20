@@ -8,6 +8,15 @@ from app.main import create_app
 client = TestClient(create_app(Settings(app_env="development")))
 
 
+def test_root_points_at_health() -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["health"] == "/health"
+
+
 def test_unversioned_health_returns_ok() -> None:
     response = client.get("/health")
 

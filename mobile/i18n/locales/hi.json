@@ -111,6 +111,8 @@
     "done": "पूर्ण",
     "completeTitle": "मूल्यांकन तैयार",
     "completeDescription": "स्वचालित मूल्यांकन पूर्ण। मैनुअल सत्यापन की सलाह दी जाती है।",
+    "partialTitle": "मूल्यांकन अधूरा",
+    "partialDescription": "कुछ चरण असफल हुए या छोड़े गए। वास्तव में क्या निर्धारित हुआ, यह परिणाम में देखें।",
     "viewResult": "परिणाम देखें",
     "viewEvidence": "साक्ष्य देखें",
     "cancel": "रद्द करें",
@@ -142,7 +144,12 @@
     "report": "सहेजें / रिपोर्ट",
     "declarationDetected": "{{label}} मिला",
     "declarationIssue": "{{label}} — संभावित समस्या",
-    "declarationReview": "{{label}} — मैनुअल समीक्षा आवश्यक"
+    "declarationReview": "{{label}} — मैनुअल समीक्षा आवश्यक",
+    "guidanceTitle": "इसका अर्थ",
+    "guidanceFound": "क्या पाया गया",
+    "guidanceUncertain": "क्या अनिश्चित है",
+    "guidanceNext": "आगे आप क्या कर सकते हैं",
+    "guidanceLimitations": "सीमाएँ"
   },
   "verification": {
     "matchBadge": "मेल",
@@ -197,6 +204,7 @@
     "emptyReview": "समीक्षा के लिए कुछ चिह्नित नहीं।",
     "typeProductImage": "उत्पाद फ़ोटो",
     "typeLabelImage": "लेबल फ़ोटो",
+    "capturedLabel": "कैप्चर किया गया लेबल फ़ोटो",
     "typeHighlighted": "चिह्नित क्षेत्र",
     "typeMeasurement": "माप",
     "typeNote": "नोट",

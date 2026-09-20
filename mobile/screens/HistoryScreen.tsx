@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +9,7 @@ import { EmptyState } from '../components/EmptyState';
 import { InspectionCard } from '../components/InspectionCard';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { STATUS_FILTERS, StatusFilterValue } from '../constants/compliance';
-import { mockInspections } from '../data/mockInspections';
+import { listInspections } from '../data/inspectionStore';
 import { TabScreenProps } from '../navigation/types';
 import { colors, radii, spacing, typography } from '../theme';
 
@@ -16,18 +17,25 @@ export function HistoryScreen({ navigation }: TabScreenProps<'History'>) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('ALL');
+  const [revision, setRevision] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRevision((value) => value + 1);
+    }, []),
+  );
 
   const inspections = useMemo(() => {
     const search = query.trim().toLowerCase();
 
-    return mockInspections.filter((inspection) => {
+    return listInspections().filter((inspection) => {
       const matchesStatus = statusFilter === 'ALL' || inspection.assessment.status === statusFilter;
       const matchesSearch =
         search.length === 0 || inspection.productName.toLowerCase().includes(search);
 
       return matchesStatus && matchesSearch;
     });
-  }, [query, statusFilter]);
+  }, [query, statusFilter, revision]);
 
   return (
     <ScreenContainer>

@@ -116,7 +116,9 @@
     "cancel": "రద్దు",
     "loadingTitle": "తనిఖీలు జరుగుతున్నాయి…",
     "loadingSubtitle": "లేబుల్‌ను కంప్లయన్స్ పైప్‌లైన్‌కు పంపుతోంది. దీనికి సాధారణంగా కొద్ది క్షణాలు పడుతుంది.",
-    "loadingSubtitleImage": "ఫోటో అప్‌లోడ్ అవుతోంది, లేబుల్ వచనం చదవబడుతోంది, తర్వాత సమ్మతి తనిఖీలు అమలవుతాయి."
+    "loadingSubtitleImage": "ఫోటో అప్‌లోడ్ అవుతోంది, లేబుల్ వచనం చదవబడుతోంది, తర్వాత సమ్మతి తనిఖీలు అమలవుతాయి.",
+    "partialTitle": "మదింపు అసంపూర్ణం",
+    "partialDescription": "కొన్ని దశలు విఫలమయ్యాయి లేదా దాటవేయబడ్డాయి. నిజంగా ఏమి నిర్ణయించబడిందో ఫలితంలో చూడండి."
   },
   "result": {
     "title": "ఫలితం",
@@ -142,7 +144,12 @@
     "report": "సేవ్ / నివేదిక",
     "declarationDetected": "{{label}} కనుగొనబడింది",
     "declarationIssue": "{{label}} — సంభావ్య సమస్య",
-    "declarationReview": "{{label}} — మాన్యువల్ సమీక్ష అవసరం"
+    "declarationReview": "{{label}} — మాన్యువల్ సమీక్ష అవసరం",
+    "guidanceTitle": "దీని అర్థం",
+    "guidanceFound": "కనుగొన్నవి",
+    "guidanceUncertain": "అనిశ్చితమైనవి",
+    "guidanceNext": "తర్వాత మీరు చేయగలిగేవి",
+    "guidanceLimitations": "పరిమితులు"
   },
   "verification": {
     "matchBadge": "సరిపోలింది",
@@ -197,6 +204,7 @@
     "emptyReview": "సమీక్ష కోసం ఏదీ గుర్తించలేదు.",
     "typeProductImage": "ఉత్పత్తి ఫోటో",
     "typeLabelImage": "లేబుల్ ఫోటో",
+    "capturedLabel": "క్యాప్చర్ చేసిన లేబుల్ ఫోటో",
     "typeHighlighted": "గుర్తించిన ప్రాంతం",
     "typeMeasurement": "కొలత",
     "typeNote": "గమనిక",

@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -13,7 +15,8 @@ import { QuickActionCard } from '../components/QuickActionCard';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { SectionHeader } from '../components/SectionHeader';
 import { StatCard } from '../components/StatCard';
-import { mockInspections, mockMandatoryDeclarations } from '../data/mockInspections';
+import { listInspections } from '../data/inspectionStore';
+import { mockMandatoryDeclarations } from '../data/mockInspections';
 import { mockInspectionSummary } from '../data/mockStatistics';
 import { TabScreenProps } from '../navigation/types';
 import { colors, spacing, typography } from '../theme';
@@ -44,7 +47,18 @@ function greetingKey(hour: number): string {
 
 export function HomeScreen({ navigation }: TabScreenProps<'Home'>) {
   const { t } = useTranslation();
-  const recentInspections = mockInspections.slice(0, RECENT_LIMIT);
+  const [revision, setRevision] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRevision((value) => value + 1);
+    }, []),
+  );
+
+  const recentInspections = useMemo(
+    () => listInspections().slice(0, RECENT_LIMIT),
+    [revision],
+  );
 
   const openPlaceholder = (title: string, description: string) =>
     navigation.navigate('ComingSoon', { title, description });

@@ -111,6 +111,8 @@
     "done": "সম্পূর্ণ",
     "completeTitle": "মূল্যায়ন প্রস্তুত",
     "completeDescription": "স্বয়ংক্রিয় মূল্যায়ন সম্পূর্ণ। ম্যানুয়াল যাচাইয়ের পরামর্শ দেওয়া হয়।",
+    "partialTitle": "মূল্যায়ন অসম্পূর্ণ",
+    "partialDescription": "কিছু ধাপ ব্যর্থ হয়েছে বা এড়িয়ে যাওয়া হয়েছে। আসলে কী নির্ধারণ হয়েছে তা ফলাফলে দেখুন।",
     "viewResult": "ফলাফল দেখুন",
     "viewEvidence": "প্রমাণ দেখুন",
     "cancel": "বাতিল",
@@ -142,7 +144,12 @@
     "report": "সংরক্ষণ / রিপোর্ট",
     "declarationDetected": "{{label}} পাওয়া গেছে",
     "declarationIssue": "{{label}} — সম্ভাব্য সমস্যা",
-    "declarationReview": "{{label}} — ম্যানুয়াল পুনর্বিবেচনা প্রয়োজন"
+    "declarationReview": "{{label}} — ম্যানুয়াল পুনর্বিবেচনা প্রয়োজন",
+    "guidanceTitle": "এর অর্থ",
+    "guidanceFound": "যা শনাক্ত হয়েছে",
+    "guidanceUncertain": "যা অনিশ্চিত",
+    "guidanceNext": "এরপর আপনি যা করতে পারেন",
+    "guidanceLimitations": "সীমাবদ্ধতা"
   },
   "verification": {
     "matchBadge": "মিল",
@@ -197,6 +204,7 @@
     "emptyReview": "পুনর্বিবেচনার জন্য কিছু চিহ্নিত নয়।",
     "typeProductImage": "পণ্যের ছবি",
     "typeLabelImage": "লেবেলের ছবি",
+    "capturedLabel": "ধরা লেবেলের ছবি",
     "typeHighlighted": "চিহ্নিত অংশ",
     "typeMeasurement": "পরিমাপ",
     "typeNote": "নোট",

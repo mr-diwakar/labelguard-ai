@@ -286,9 +286,9 @@ export interface ScanStageStatus {
 // --- Top-level request / response ----------------------------------------- //
 
 /**
- * Everything is optional; `{}` is a valid request. `ocr_results` is how a scan
- * begins — the backend has no raw-image endpoint here (no OCR provider bundled),
- * so the client supplies already-structured OCR JSON. `extra="forbid"` on the
+ * Everything is optional; `{}` is a valid request. Camera captures go to
+ * `POST /api/v1/scan/image` (multipart); this JSON body is the sample-scan
+ * path and any caller that already has `OCRResult[]`. `extra="forbid"` on the
  * backend means no extra keys may be added to this object.
  */
 export interface ScanRequest {
